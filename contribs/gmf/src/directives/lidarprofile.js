@@ -1,6 +1,6 @@
 goog.provide('gmf.lidarProfileComponent');
 goog.require('gmf');
-goog.require('ol.geom.LineString');
+goog.require('gmf.lidarProfile.Config');
 
 
 gmf.module.value('gmfLidarProfileTemplateUrl',
@@ -52,7 +52,7 @@ gmf.module.component('gmfLidarProfile', gmf.lidarProfileComponent);
  * @param {angular.Scope} $scope Angular scope.
  * @param {angular.$http} $http Angular http service.
  * @param {string} pytreeLidarProfileJsonUrl URL of GMF service JSON profile.
- * @param {gmf.LidarProfileConfig} gmfLidarProfileConfig LiDAR Profile Configuration Service
+ * @param {gmf.lidarProfile.Config} gmfLidarProfileConfig LiDAR Profile Configuration Service
  * @constructor
  * @private
  * @ngInject
@@ -78,12 +78,6 @@ gmf.LidarProfileController = function($scope, $http, pytreeLidarProfileJsonUrl, 
    * @private
    */
   this.pytreeLidarProfileJsonUrl_ = pytreeLidarProfileJsonUrl;
-
-  /**
-   * @type {gmf.LidarProfileConfig}
-   * @private
-   */
-  this.gmfLidarProfileConfig_ = gmfLidarProfileConfig;
 
   /**
    * @type {ol.Map}

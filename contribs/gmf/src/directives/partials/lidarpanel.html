@@ -2,7 +2,7 @@
      gmf-drawprofileline
      gmf-drawprofileline-active="$ctrl.active"
      gmf-drawprofileline-map="::$ctrl.map"
-     gmf-drawprofileline-line="$ctrl.line"
+     gmf-drawprofileline-line="$ctrl.line">
    <p>
     <button class="btn btn-default"
       ngeo-btn ng-model="ctrl.interaction.active"
@@ -49,8 +49,8 @@
     {{'Material' | translate}}
   <select
     ng-options="option.name for option in $ctrl.getPointAttributes()"
-    ng-model="$ctrl.pointAttributes.selectedOption"
-    ng-change="$ctrl.setDefaultAttribute($ctrl.pointAttributes.selectedOption.value)">
+    ng-model="$ctrl.selectedOption"
+    ng-change="$ctrl.setDefaultAttribute($ctrl.selectedOption.value)">
   </select>
   </div>
   <hr>
