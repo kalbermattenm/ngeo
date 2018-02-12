@@ -21,12 +21,6 @@ gmf.lidarProfile.Utils = class {
      * @private
      */
     this.map_ = null;
-
-    /**
-     * @type {Object}
-     * @private
-     */
-    this.exportImage_ = new Image();
   }
 
 
@@ -199,62 +193,51 @@ gmf.lidarProfile.Utils = class {
 
 
   /**
-   * Create a fake link and make the browser download the referenced URL
-   * @param {string} filename csv file name
-   * @param {string} dataUrl fake url from which to download the csv file
+   * Create a image file by combining SVG and canvas elements and let the user downloads it.
+   * @param {gmfx.LidarProfileClientConfig} profileClientConfig The profile client configuration.
    * @export
    */
-  downloadDataUrlFromJavascript(filename, dataUrl) {
-    const link = document.createElement('a');
-    link.download = filename;
-    link.target = '_blank';
-    link.href = dataUrl;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
+  downloadProfileAsImageFile(profileClientConfig) {
+    const profileSVG = d3.select('#profileSVG');
+    const w = parseInt(profileSVG.attr('width'), 10);
+    const h = parseInt(profileSVG.attr('height'), 10);
+    const margin = profileClientConfig.margin;
 
+    // Create a new canvas element to avoid manipulate the one with profile.
+    const canvas = document.createElement('canvas');
+    canvas.style.display = 'none';
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, w, h);
 
-  /**
-   * Create a image file by combining SVG and canvas elements
-   * @export
-   */
-  exportToImageFile() {
-    const svg = d3.select('#profileSVG').node();
-    this.exportImage_ = new Image();
-    const DOMURL = window.URL || window.webkitURL || window;
+    // Draw the profile canvas (the points) into the new canvas.
+    const profileCanvas = d3.select('#profileCanvas').node();
+    ctx.drawImage(profileCanvas, margin.left, margin.top,
+      w - (margin.left + margin.right), h - (margin.top + margin.bottom));
+
+    // Add transforms the profile into an image.
+    const exportImage = new Image();
     const serializer = new XMLSerializer();
-    const svgStr = serializer.serializeToString(svg);
-    const svgImage = new Blob([svgStr], {type: 'image/svg+xml'});
-    const url = DOMURL.createObjectURL(svgImage);
+    const svgStr = serializer.serializeToString(profileSVG.node());
 
-    this.exportImage_ = new Image();
-
-    this.exportImage_.onload = function() {
-      const margin = this.options_.profileConfig.client.margin;
-      const canvas = document.createElement('canvas');
-
-      canvas.style.display = 'none';
-      document.body.appendChild(canvas);
-      const w = d3.select('#profileSVG').attr('width');
-      const h = d3.select('#profileSVG').attr('height');
-      canvas.width = w;
-      canvas.height = h;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, w, h);
-      const pointsCanvas = d3.select('#profileCanvas').node();
-      canvas.getContext('2d').drawImage(pointsCanvas, margin.left, margin.top, w - (margin.left + margin.right), h - (margin.top + margin.bottom));
-      ctx.drawImage(this.exportImage_, 0, 0, w, h);
-      const dataURL = canvas.toDataURL();
-
-      this.downloadDataUrlFromJavascript('profile.png', dataURL);
-
-      DOMURL['revokeObjectURL'](url);
-
-    }.bind(this);
-
-    this.exportImage_.src = url;
+    // Draw the image of the profile into the context of the new canvas.
+    const img_id = 'lidare_profile_for_export_uid';
+    exportImage.id = img_id;
+    exportImage.src = `data:image/svg+xml;base64, ${btoa(svgStr)}`;
+    exportImage.style = 'display:none';
+    const main = document.getElementsByTagName('main')[0];
+    // The image must be loaded to be drawn.
+    exportImage.onload = () => {
+      ctx.drawImage(exportImage, 0, 0, w, h);
+      main.removeChild(document.getElementById(img_id));
+      // Let the user download the image.
+      canvas.toBlob((blob) => {
+        saveAs(blob, 'LIDAR_profile.png');
+      });
+    };
+    main.append(exportImage);
   }
 
 

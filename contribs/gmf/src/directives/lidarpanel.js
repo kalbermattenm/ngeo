@@ -42,7 +42,7 @@ gmf.lidarPanelComponent = {
   controller: 'gmfLidarPanelController',
   bindings: {
     'active': '=gmfLidarPanelActive',
-    'map': '=gmfLidarPanelMap',
+    'map': '<gmfLidarPanelMap',
     'line': '=gmfLidarPanelLine'
   },
   templateUrl: gmfLidarPanelTemplateUrl
@@ -59,7 +59,6 @@ gmf.module.component('gmfLidarPanel', gmf.lidarPanelComponent);
  * @param {ngeo.ToolActivateMgr} ngeoToolActivateMgr Ngeo ToolActivate manager service
  * @param {ngeo.ToolActivate} ngeoToolActivate Ngeo ToolActivate service.
  * @param {ngeo.CsvDownload} ngeoCsvDownload The csv download function.
- * @param {ngeo.Download} ngeoDownload The download function.
  * @constructor
  * @private
  * @ngInject
@@ -67,7 +66,7 @@ gmf.module.component('gmfLidarPanel', gmf.lidarPanelComponent);
  * @ngname gmfLidarPanelController
  */
 gmf.LidarPanelController = function($scope, gmfLidarProfileManager, gmfLidarProfileConfig,
-  ngeoToolActivateMgr, ngeoToolActivate, ngeoCsvDownload, ngeoDownload) {
+  ngeoToolActivateMgr, ngeoToolActivate, ngeoCsvDownload) {
 
   /**
    * @type {gmf.lidarProfile.Config}
@@ -134,12 +133,6 @@ gmf.LidarPanelController = function($scope, gmfLidarProfileManager, gmfLidarProf
    * @private
    */
   this.ngeoCsvDownload_ = ngeoCsvDownload;
-
-  /**
-   * @type {ngeo.Download}
-   * @private
-   */
-  this.ngeoDownload_ = ngeoDownload;
 
   /**
    * @type {ngeo.ToolActivateMgr}
@@ -327,7 +320,7 @@ gmf.LidarPanelController.prototype.csvExport = function() {
  */
 gmf.LidarPanelController.prototype.pngExport = function() {
   if (this.line) {
-    this.profile.loader.utils.exportToImageFile();
+    this.profile.loader.utils.downloadProfileAsImageFile(this.gmfLidarProfileConfig.profileConfig.client);
   }
 };
 
