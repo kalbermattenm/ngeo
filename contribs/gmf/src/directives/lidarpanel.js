@@ -3,6 +3,8 @@ goog.provide('gmf.lidarPanelComponent');
 goog.require('gmf');
 goog.require('gmf.lidarProfile.Config');
 goog.require('gmf.lidarProfile.Manager');
+goog.require('ngeo.CsvDownload');
+goog.require('ngeo.Download');
 goog.require('ol.geom.LineString');
 
 
@@ -56,6 +58,8 @@ gmf.module.component('gmfLidarPanel', gmf.lidarPanelComponent);
  * @param {gmf.lidarProfile.Config} gmfLidarProfileConfig gmf gmfLidarProfileConfig.
  * @param {ngeo.ToolActivateMgr} ngeoToolActivateMgr Ngeo ToolActivate manager service
  * @param {ngeo.ToolActivate} ngeoToolActivate Ngeo ToolActivate service.
+ * @param {ngeo.CsvDownload} ngeoCsvDownload The csv download function.
+ * @param {ngeo.Download} ngeoDownload The download function.
  * @constructor
  * @private
  * @ngInject
@@ -63,7 +67,7 @@ gmf.module.component('gmfLidarPanel', gmf.lidarPanelComponent);
  * @ngname gmfLidarPanelController
  */
 gmf.LidarPanelController = function($scope, gmfLidarProfileManager, gmfLidarProfileConfig,
-  ngeoToolActivateMgr, ngeoToolActivate) {
+  ngeoToolActivateMgr, ngeoToolActivate, ngeoCsvDownload, ngeoDownload) {
 
   /**
    * @type {gmf.lidarProfile.Config}
@@ -124,6 +128,18 @@ gmf.LidarPanelController = function($scope, gmfLidarProfileManager, gmfLidarProf
         this.update_();
       }
     });
+
+  /**
+   * @type {ngeo.Download}
+   * @private
+   */
+  this.ngeoCsvDownload_ = ngeoCsvDownload;
+
+  /**
+   * @type {ngeo.Download}
+   * @private
+   */
+  this.ngeoDownload_ = ngeoDownload;
 
   /**
    * @type {ngeo.ToolActivateMgr}
@@ -295,7 +311,13 @@ gmf.LidarPanelController.prototype.setAutoWidth = function(autoWidth) {
  */
 gmf.LidarPanelController.prototype.csvExport = function() {
   if (this.line) {
-    this.profile.loader.utils.getPointsInProfileAsCSV(this.profile.loader.profilePoints);
+    const points = this.profile.loader.utils.getFlatPointsByDistance(this.profile.loader.profilePoints);
+    const csvData = this.profile.loader.utils.getCSVData(points);
+    let headerColumns = Object.keys(points[0]);
+    headerColumns = headerColumns.map((column) => {
+      return {'name': column};
+    });
+    this.ngeoCsvDownload_.startDownload(csvData, headerColumns, 'LIDAR_profile.csv');
   }
 };
 

@@ -259,22 +259,13 @@ gmf.lidarProfile.Utils = class {
 
 
   /**
-   * Turn the profile data into a CSV file containing all available attributes
-   * in lidar data set
+   * Transforms a lidarProfile into mutliple single points sorted by distance.
    * @param {gmfx.LidarProfilePoints} profilePoints in the profile
-   * @export
+   * @return {Array.<gmfx.LidarPoints>} An array of Lidar Points.
    */
-  getPointsInProfileAsCSV(profilePoints) {
-    let file = 'data:text/csv;charset=utf-8,';
-
-    /**
-     * @type {Array}
-     */
+  getFlatPointsByDistance(profilePoints) {
     const points = [];
     for (let i = 0; i < profilePoints.distance.length; i++) {
-      /**
-       * @type {gmfx.lidarPoint}
-       */
       const p = {
         distance: profilePoints.distance[i],
         altitude: profilePoints.altitude[i],
@@ -285,66 +276,32 @@ gmf.lidarProfile.Utils = class {
       };
       points.push(p);
     }
-
     points.sort((a, b) => (a.distance - b.distance));
+    return points;
+  }
 
-    let header = '';
-    const headerColumns = ['x', 'y', 'distance', 'altitude', 'color_packed', 'intensity',
-      'classification', 'numberOfReturns', 'pointSourceID', 'returnNumber'];
-    for (let i = 0; i < headerColumns.length; i++) {
-      const property = headerColumns[i];
-      if (points[0].hasOwnProperty(property)) {
-        header += `, ${property}`;
+
+  /**
+   * Get the data for a CSV export of the profile.
+   * @param {gmfx.LidarPoints} points a lidar profile points object.
+   * @return {Array.<Object>} Objects for a csv export (column: value).
+   * @export
+   */
+  getCSVData(points) {
+    return points.map((point) => {
+      const row = {};
+      for (const key in point) {
+        const value = point[key];
+        if (key == 'altitude') {
+          row[key] = value.toFixed(4);
+        } else if (key == 'color_packed' || key == 'coords') {
+          row[key] = value.join(' ');
+        } else {
+          row[key] = value;
+        }
       }
-    }
-
-    file += `${header.substr(2)} \n`;
-
-    let point = {
-      distance: -1,
-      altitude: -1,
-      color_packed: [],
-      intensity: -1,
-      classification: -1,
-      numberOfReturns: -1,
-      pointSourceID: -1,
-      returnNumber: -1
-    };
-
-    for (point of points) {
-      let line = `${point.distance.toFixed(4)}, `;
-      line += `${point.altitude.toFixed(4)}, `;
-
-      if (point.hasOwnProperty('color_packed')) {
-        line += point.color_packed.join(', ');
-      }
-
-      if (point.hasOwnProperty('intensity')) {
-        line += `, ${point.intensity}`;
-      }
-
-      if (point.hasOwnProperty('classification')) {
-        line += `, ${point.classification}`;
-      }
-
-      if (point.hasOwnProperty('numberOfReturns')) {
-        line += `, ${point.numberOfReturns}`;
-      }
-
-      if (point.hasOwnProperty('pointSourceID')) {
-        line += `, ${point.pointSourceID}`;
-      }
-
-      if (point.hasOwnProperty('returnNumber')) {
-        line += `, ${point.returnNumber}`;
-      }
-
-      line += '\n';
-      file += line;
-    }
-
-    const encodedUri = encodeURI(file);
-    this.downloadDataUrlFromJavascript('profile.csv', encodedUri);
+      return row;
+    });
   }
 
 
