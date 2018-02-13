@@ -197,6 +197,7 @@ gmf.lidarProfile.Manager = class {
    * @export
    */
   getProfileByLOD(distanceOffset, resetPlot, minLOD) {
+    const gettextCatalog = this.gettextCatalog;
     this.profilePoints = this.getEmptyProfilePoints_();
 
     if (resetPlot) {
@@ -235,7 +236,8 @@ gmf.lidarProfile.Manager = class {
       profileWidth = this.config.serverConfig.width;
     }
 
-    d3.select('#gmf-lidar-profile-container .width-info').html(`Profile width: ${profileWidth}m`);
+    const profileWidthTxt = gettextCatalog.getString('Profile width: ');
+    d3.select('#gmf-lidar-profile-container .width-info').html(`${profileWidthTxt} ${profileWidth}m`);
 
     for (let i = 0; i < maxLODWith.maxLOD; i++) {
       if (i == 0) {
@@ -264,10 +266,12 @@ gmf.lidarProfile.Manager = class {
    * @private
    */
   queryPytree_(minLOD, maxLOD, iter, coordinates, distanceOffset, lastLOD, width, resetPlot) {
+    const gettextCatalog = this.gettextCatalog;
     const lodInfo = d3.select('#gmf-lidar-profile-container .lod-info');
     if (this.config.serverConfig.debug) {
       let html = lodInfo.html();
-      html += `Loading LOD: ${minLOD}-${maxLOD}...<br>`;
+      const loadingLodTxt = gettextCatalog.getString('Loading LOD: ');
+      html += `${loadingLodTxt} ${minLOD}-${maxLOD}...<br>`;
       lodInfo.html(html);
     }
 
@@ -283,7 +287,9 @@ gmf.lidarProfile.Manager = class {
     }).then((response) => {
       if (this.config.serverConfig.debug) {
         let html = lodInfo.html();
-        html += `LOD: ${minLOD}-${maxLOD} loaded <br>`;
+        const lodTxt = gettextCatalog.getString('LOD: ');
+        const loadedTxt = gettextCatalog.getString('loaded');
+        html += `${lodTxt} ${minLOD}-${maxLOD} ${loadedTxt}<br>`;
         lodInfo.html(html);
       }
       this.processBuffer_(response.data, iter, distanceOffset, lastLOD, resetPlot);
@@ -291,7 +297,6 @@ gmf.lidarProfile.Manager = class {
       console.error(response);
     });
   }
-
 
   /**
    * Process the binary array return by Pytree (cPotree)
@@ -325,11 +330,7 @@ gmf.lidarProfile.Manager = class {
         const ctx = canvasEl.getContext('2d');
         ctx.clearRect(0, 0, canvasEl.getBoundingClientRect().width, canvasEl.getBoundingClientRect().height);
         canvas.selectAll('*').remove();
-        let errorTxt = '<p><b>Lidar profile service error</b></p>';
-        errorTxt += '<p>It might be offline</p>';
-        // TODO: check extent consistency earlier
-        errorTxt += '<p>Or did you attempt to draw a profile outside data extent ?</p>';
-        errorTxt += '<p>Or did you attempt to draw such a small profile that no point was returned ?</p>';
+        const errorTxt = this.getHTMLError_();
         lidarError.style('visibility', 'visible');
         lidarError.html(errorTxt);
       }
@@ -428,6 +429,26 @@ gmf.lidarProfile.Manager = class {
     } else {
       this.plot.drawPoints(points, this.config.serverConfig.default_attribute);
     }
+  }
+
+  /**
+   * @return {string} The html for errors.
+   * @private
+   */
+  getHTMLError_() {
+    const gettextCatalog = this.gettextCatalog;
+    const errorInfoTxt = gettextCatalog.getString('Lidar profile service error');
+    const errorOfflineTxt = gettextCatalog.getString('It might be offline');
+    // TODO: check extent consistency earlier
+    const errorOutsideTxt = gettextCatalog.getString('Or did you attempt to draw a profile outside data extent ?');
+    const errorNoPointError = gettextCatalog.getString('Or did you attempt to draw such a small profile that no point was returned ?');
+    return `
+      <div class="lidar-profile-error">
+      <p class="bold">${errorInfoTxt}</p>
+      <p>${errorOfflineTxt}</p>
+      <p>${errorOutsideTxt}</p>
+      <p>${errorNoPointError}</p>
+    `;
   }
 
   /**

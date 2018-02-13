@@ -49,16 +49,18 @@
   <hr>
     <p translate>Material</p>
   <select
-    ng-options="option.name for option in ::$ctrl.getAvailablePointAttributes()"
+    ng-options="option.name | translate for option in ::$ctrl.getAvailablePointAttributes()"
     ng-model-options="{getterSetter: true}"
     ng-model="$ctrl.getSetSelectedPointAttribute">
   </select>
   </div>
   <hr>
   <div>
-    <p translate>Automatic width</p>
-    <input type="checkbox"  ng-model="$ctrl.getSetAutoWidth" ng-model-options="{getterSetter: true}" checked>
-    </input>
+    <p>
+      <span translate>Automatic width</span>
+      <input type="checkbox"  ng-model="$ctrl.getSetAutoWidth" ng-model-options="{getterSetter: true}" checked>
+    </p>
+    </div>
     <div ng-class="[{gmf_lidar_profile_automatic_width:$ctrl.getSetAutoWidth()}]">
       <span translate>Manual width</span>
       <input ng-disabled="$ctrl.getSetAutoWidth()" type="number" pattern="^(0|[1-9][0-9]*)$" min=1 max=100 step=1 ng-model="$ctrl.getSetWidth" ng-model-options="{getterSetter: true}" ng-value="$ctrl.getSetWidth()"></input>

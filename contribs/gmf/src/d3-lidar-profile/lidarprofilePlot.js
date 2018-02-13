@@ -340,19 +340,19 @@ gmf.lidarProfile.Plot = class {
 
     if (distance !== undefined) {
       const distanceTxt = gettextCatalog.getString('Distance: ');
-      html.push(`${distanceTxt + number(distance, distDecimal)}`)
+      html.push(`${distanceTxt + number(distance, distDecimal)}`);
     }
     if (altitude !== undefined) {
       const altitudeTxt = gettextCatalog.getString('Altitude: ');
-      html.push(`${altitudeTxt + number(altitude, distDecimal)}`)
+      html.push(`${altitudeTxt + number(altitude, distDecimal)}`);
     }
     if (classification.length > 0) {
       const classificationTxt = gettextCatalog.getString('Classification: ');
-      html.push(`${classificationTxt + classification}`)
+      html.push(`${classificationTxt + classification}`);
     }
     if (intensity !== undefined) {
       const intensityTxt = gettextCatalog.getString('Intensity: ');
-      html.push(`${intensityTxt + number(intensity, 0)}`)
+      html.push(`${intensityTxt + number(intensity, 0)}`);
     }
 
     return html.join('</br>');
