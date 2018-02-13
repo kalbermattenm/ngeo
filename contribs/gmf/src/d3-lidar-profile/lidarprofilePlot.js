@@ -22,7 +22,7 @@ gmf.lidarProfile.Plot = class {
      * @type {gmf.lidarProfile.Utils}
      * @private
      */
-    this.utils_ = new gmf.lidarProfile.Utils(this.manager_.config);
+    this.utils_ = new gmf.lidarProfile.Utils();
 
     /**
      * d3.scaleLinear X scale.
@@ -272,10 +272,11 @@ gmf.lidarProfile.Plot = class {
     const tolerance = this.manager_.config.clientConfig.tolerance || 0;
 
     const canvasCoordinates = d3.mouse(d3.select('#profileCanvas').node());
+    const classification_colors = this.manager_.config.serverConfig.classification_colors;
 
     let cx, cy;
     const p = this.utils_.getClosestPoint(this.manager_.loader.profilePoints,
-      canvasCoordinates[0], canvasCoordinates[1], tolerance, this.scaleX, this.scaleY);
+      canvasCoordinates[0], canvasCoordinates[1], tolerance, this.scaleX, this.scaleY, classification_colors);
 
     if (p != undefined) {
 
@@ -292,7 +293,7 @@ gmf.lidarProfile.Plot = class {
         .style('fill', 'orange');
 
       const pClassification = p.classification || -1;
-      const pointClassification = this.manager_.config.serverConfig.classification_colors[pClassification] || {};
+      const pointClassification = classification_colors[pClassification] || {};
 
       const html = `Distance: ${Math.round(10 * p.distance) / 10}<br>
       Altitude: ${Math.round(10 * p.altitude) / 10}<br>

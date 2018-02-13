@@ -19,6 +19,12 @@ gmf.lidarProfile.Loader = class {
     this.manager_ = gmfLidarProfileManagerInstance;
 
     /**
+     * @type {ol.Map}
+     * @private
+     */
+    this.map_ = null;
+
+    /**
      * The hovered point attributes in d3 profile highlighted on the 2D map
      * @type {ol.Overlay}
      */
@@ -74,7 +80,7 @@ gmf.lidarProfile.Loader = class {
     /**
      * @type {gmf.lidarProfile.Utils}
      */
-    this.utils = new gmf.lidarProfile.Utils(this.manager_.config);
+    this.utils = new gmf.lidarProfile.Utils();
   }
 
 
@@ -104,10 +110,10 @@ gmf.lidarProfile.Loader = class {
    * @export
    */
   setMap(map) {
+    this.map_ = map;
     this.cartoHighlight.setMap(map);
     this.lidarPointHighlight.setMap(map);
     this.lidarBuffer.setMap(map);
-    this.utils.setMap(map);
   }
 
   /**
@@ -144,17 +150,20 @@ gmf.lidarProfile.Loader = class {
     let pytreeLinestring = this.utils.getPytreeLinestring(this.line_);
 
     let maxLODWith;
+    const max_levels = this.manager_.config.serverConfig.max_levels;
     if (distanceOffset == 0) {
-      maxLODWith = this.utils.getNiceLOD(this.line_.getLength());
+      maxLODWith = this.utils.getNiceLOD(this.line_.getLength(), max_levels);
     } else {
       const domain = this.manager_.plot.scaleX['domain']();
-      const clip = this.utils.clipLineByMeasure(this.line_, domain[0], domain[1]);
+      const map_resolution = this.map_ ? this.map_.getView().getResolution() : 0;
+      const clip = this.utils.clipLineByMeasure(this.manager_.config, map_resolution,
+        this.line_, domain[0], domain[1]);
       pytreeLinestring = '';
       for (let i = 0; i < clip.clippedLine.length; i++) {
         pytreeLinestring += `{${clip.clippedLine[i][0]},${clip.clippedLine[i][1]}},`;
       }
       pytreeLinestring = pytreeLinestring.substr(0, pytreeLinestring.length - 1);
-      maxLODWith = this.utils.getNiceLOD(domain[1] - domain[0]);
+      maxLODWith = this.utils.getNiceLOD(domain[1] - domain[0], max_levels);
 
     }
 
@@ -375,14 +384,16 @@ gmf.lidarProfile.Loader = class {
   updateData_() {
     const domainX = this.manager_.plot.scaleX['domain']();
     const domainY = this.manager_.plot.scaleY['domain']();
-    const clip = this.utils.clipLineByMeasure(this.line_, domainX[0], domainX[1]);
+    const map_resolution = this.map_ ? this.map_.getView().getResolution() : 0;
+    const clip = this.utils.clipLineByMeasure(this.manager_.config, map_resolution,
+      this.line_, domainX[0], domainX[1]);
 
     this.lidarBuffer.getSource().clear();
     this.lidarBuffer.getSource().addFeature(clip.bufferGeom);
     this.lidarBuffer.setStyle(clip.bufferStyle);
 
     const span = domainX[1] - domainX[0];
-    const maxLODWidth = this.utils.getNiceLOD(span);
+    const maxLODWidth = this.utils.getNiceLOD(span, this.manager_.config.serverConfig.max_levels);
     const xTolerance = 0.2;
 
     if (Math.abs(domainX[0] - this.manager_.plot.previousDomainX[0]) < xTolerance &&

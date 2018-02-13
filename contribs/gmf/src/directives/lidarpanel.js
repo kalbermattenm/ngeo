@@ -254,7 +254,7 @@ gmf.LidarPanelController = class {
    * @return {lidarProfileServer.ConfigClassifications} classification list
    */
   getClassification() {
-    return this.profileConfig_.servcerConfig.classification_colors;
+    return this.profileConfig_.serverConfig.classification_colors;
   }
 
 

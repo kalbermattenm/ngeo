@@ -4,42 +4,15 @@ goog.provide('gmf.lidarProfile.Utils');
 gmf.lidarProfile.Utils = class {
 
   /**
-   * FIXME missing description
-   * @struct
-   * @param {gmf.lidarProfile.Config} config Instance of gmf.lidarProfile.Config
-   */
-  constructor(config) {
-
-    /**
-     * @type {gmf.lidarProfile.Config}
-     * @private
-     */
-    this.config_ = config;
-
-    /**
-     * @type {ol.Map}
-     * @private
-     */
-    this.map_ = null;
-  }
-
-
-  /**
-   * @param {ol.Map} map of the app
-   */
-  setMap(map) {
-    this.map_ = map;
-  }
-
-
-  /**
    * Clip a linstring with start and end measure givent by d3 Chart domain
+   * @param {gmf.lidarProfile.Config} config the LIDAR profile config instance
+   * @param {number} map_resolution the current resolution of the map
    * @param {ol.geom.LineString} linestring an OpenLayer Linestring
    * @param {number} dLeft domain minimum
    * @param {number} dRight domain maximum
    * @return {{clippedLine: Array.<ol.Coordinate>, distanceOffset: number}} Object with clipped lined coordinates and left domain value
    */
-  clipLineByMeasure(linestring, dLeft, dRight) {
+  clipLineByMeasure(config, map_resolution, linestring, dLeft, dRight) {
 
     const clippedLine = new ol.geom.LineString([]);
     let mileage_start = 0;
@@ -75,16 +48,16 @@ gmf.lidarProfile.Utils = class {
     });
 
     let profileWidth;
-    if (this.config_.clientConfig.autoWidth) {
-      profileWidth = this.getNiceLOD(clippedLine.getLength()).width;
+    if (config.clientConfig.autoWidth) {
+      profileWidth = this.getNiceLOD(clippedLine.getLength(), config.serverConfig.max_levels).width;
     } else {
-      profileWidth = this.config_.serverConfig.width;
+      profileWidth = config.serverConfig.width;
     }
     const feat = new ol.Feature({
       geometry: clippedLine
     });
 
-    const widthInMapsUnits = profileWidth / this.map_.getView().getResolution();
+    const widthInMapsUnits = profileWidth / map_resolution;
 
     const lineStyle = new ol.style.Style({
       stroke: new ol.style.Stroke({
@@ -172,17 +145,17 @@ gmf.lidarProfile.Utils = class {
    * Get a LOD and with for a given chart span
    * Configuration is set up in Pytree configuration
    * @param {number} span domain extent
+   * @param {lidarProfileServer.ConfigLevels} max_levels levels defined by a LIDAR server
    * @return {{maxLOD: number, width: number}} Object with optimized LOD and width for this profile span
    */
-  getNiceLOD(span) {
+  getNiceLOD(span, max_levels) {
     let maxLOD = 0;
     let width = 0;
-    const levels = this.config_.serverConfig.max_levels;
-    for (const key in levels) {
+    for (const key in max_levels) {
       const level = parseInt(key, 10);
-      if (span < level && levels[level].max > maxLOD) {
-        maxLOD = levels[level].max;
-        width = levels[level].width;
+      if (span < level && max_levels[level].max > maxLOD) {
+        maxLOD = max_levels[level].max;
+        width = max_levels[level].width;
       }
     }
     return {
@@ -339,9 +312,10 @@ gmf.lidarProfile.Utils = class {
    * @param {number} tolerance snap sensibility
    * @param {Function} sx d3.scalelinear x scale
    * @param {Function} sy d3.scalelinear y scale
+   * @param {lidarProfileServer.ConfigClassifications} classification_colors classification colors
    * @return {gmfx.lidarPoint} closestPoint the closest point to the clicked coordinates
    */
-  getClosestPoint(points, xs, ys, tolerance, sx, sy) {
+  getClosestPoint(points, xs, ys, tolerance, sx, sy, classification_colors) {
     const d = points;
     const tol = tolerance;
     const distances = [];
@@ -351,7 +325,7 @@ gmf.lidarProfile.Utils = class {
       if (sx(d.distance[i]) < xs + tol && sx(d.distance[i]) > xs - tol && sy(d.altitude[i]) < ys + tol && sy(d.altitude[i]) > ys - tol) {
 
         const pDistance =  Math.sqrt(Math.pow((sx(d.distance[i]) - xs), 2) + Math.pow((sy(d.altitude[i]) - ys), 2));
-        const cClassif = this.config_.serverConfig.classification_colors[d.classification[i]];
+        const cClassif = classification_colors[d.classification[i]];
         if (cClassif && cClassif.visible == 1) {
 
           hP.push({
