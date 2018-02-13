@@ -4,6 +4,7 @@ goog.require('gmf');
 goog.require('gmf.lidarProfile.Config');
 goog.require('gmf.lidarProfile.Manager');
 goog.require('ngeo.CsvDownload');
+goog.require('ngeo.ToolActivate');
 goog.require('ol.geom.LineString');
 
 
