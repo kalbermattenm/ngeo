@@ -74,7 +74,7 @@ gmf.lidarProfile.Loader = class {
     /**
      * @type {gmf.lidarProfile.Utils}
      */
-    this.utils = new gmf.lidarProfile.Utils(this.manager_.options);
+    this.utils = new gmf.lidarProfile.Utils(this.manager_.config);
   }
 
 
@@ -160,20 +160,20 @@ gmf.lidarProfile.Loader = class {
 
     let lastLOD = false;
     d3.select('#lodInfo').html('');
-    this.manager_.options.profileConfig.client.pointSum = 0;
+    this.manager_.config.clientConfig.pointSum = 0;
     let profileWidth = 0;
-    if (this.manager_.options.profileConfig.client.autoWidth) {
+    if (this.manager_.config.clientConfig.autoWidth) {
       profileWidth = maxLODWith.width;
     } else {
-      profileWidth = this.manager_.options.profileConfig.server.width;
+      profileWidth = this.manager_.config.serverConfig.width;
     }
 
     d3.select('#widthInfo').html(`Profile width: ${profileWidth}m`);
 
     for (let i = 0; i < maxLODWith.maxLOD; i++) {
       if (i == 0) {
-        this.queryPytree_(minLOD, this.manager_.options.profileConfig.server.initialLOD, i, pytreeLinestring, distanceOffset, lastLOD, profileWidth, resetPlot);
-        i += this.manager_.options.profileConfig.server.initialLOD - 1;
+        this.queryPytree_(minLOD, this.manager_.config.serverConfig.initialLOD, i, pytreeLinestring, distanceOffset, lastLOD, profileWidth, resetPlot);
+        i += this.manager_.config.serverConfig.initialLOD - 1;
       } else if (i < maxLODWith.maxLOD - 1) {
         this.queryPytree_(minLOD + i, minLOD + i + 1, i, pytreeLinestring, distanceOffset, lastLOD, profileWidth, false);
       } else {
@@ -197,14 +197,14 @@ gmf.lidarProfile.Loader = class {
    * @private
    */
   queryPytree_(minLOD, maxLOD, iter, coordinates, distanceOffset, lastLOD, width, resetPlot) {
-    if (this.manager_.options.profileConfig.server.debug) {
+    if (this.manager_.config.serverConfig.debug) {
       let html = d3.select('#lodInfo').html();
       html += `Loading LOD: ${minLOD}-${maxLOD}...<br>`;
       d3.select('#lodInfo').html(html);
     }
 
-    const pointCloudName = this.manager_.options.profileConfig.server.default_point_cloud;
-    const hurl = `${this.manager_.options.pytreeLidarProfileJsonUrl}/get_profile?minLOD=${minLOD}
+    const pointCloudName = this.manager_.config.serverConfig.default_point_cloud;
+    const hurl = `${this.manager_.config.pytreeLidarProfileJsonUrl}/get_profile?minLOD=${minLOD}
       &maxLOD=${maxLOD}&width=${width}&coordinates=${coordinates}&pointCloud=${pointCloudName}&attributes='`;
 
     this.manager_.$http.get(hurl, {
@@ -213,7 +213,7 @@ gmf.lidarProfile.Loader = class {
       },
       responseType: 'arraybuffer'
     }).then((response) => {
-      if (this.manager_.options.profileConfig.server.debug) {
+      if (this.manager_.config.serverConfig.debug) {
         let html = d3.select('#lodInfo').html();
         html += `LOD: ${minLOD}-${maxLOD} loaded <br>`;
         d3.select('#lodInfo').html(html);
@@ -272,17 +272,17 @@ gmf.lidarProfile.Loader = class {
 
     // If number of points return is higher than Pytree configuration max value,
     // stop sending requests.
-    this.manager_.options.profileConfig.client.pointSum += jHeader['points'];
-    if (this.manager_.options.profileConfig.client.pointSum >
-        this.manager_.options.profileConfig.server.max_point_number) {
+    this.manager_.config.clientConfig.pointSum += jHeader['points'];
+    if (this.manager_.config.clientConfig.pointSum >
+        this.manager_.config.serverConfig.max_point_number) {
       console.warn('Number of points is higher than Pytree configuration max value !');
     }
 
     const attr = jHeader['pointAttributes'];
     const attributes = [];
     for (let j = 0; j < attr.length; j++) {
-      if (this.manager_.options.profileConfig.server.point_attributes[attr[j]] != undefined) {
-        attributes.push(this.manager_.options.profileConfig.server.point_attributes[attr[j]]);
+      if (this.manager_.config.serverConfig.point_attributes[attr[j]] != undefined) {
+        attributes.push(this.manager_.config.serverConfig.point_attributes[attr[j]]);
       }
     }
     const scale = jHeader['scale'];
@@ -349,14 +349,14 @@ gmf.lidarProfile.Loader = class {
     if (iter == 0 && resetPlot) {
       this.manager_.plot.setupPlot(rangeX, rangeY);
       this.isPlotSetup_ = true;
-      this.manager_.plot.drawPoints(points, this.manager_.options.profileConfig.server.default_attribute);
+      this.manager_.plot.drawPoints(points, this.manager_.config.serverConfig.default_attribute);
 
     } else if (!this.isPlotSetup_) {
       this.manager_.plot.setupPlot(rangeX, rangeY);
       this.isPlotSetup_ = true;
-      this.manager_.plot.drawPoints(points, this.manager_.options.profileConfig.server.default_attribute);
+      this.manager_.plot.drawPoints(points, this.manager_.config.serverConfig.default_attribute);
     } else {
-      this.manager_.plot.drawPoints(points, this.manager_.options.profileConfig.server.default_attribute);
+      this.manager_.plot.drawPoints(points, this.manager_.config.serverConfig.default_attribute);
     }
   }
 
@@ -389,12 +389,12 @@ gmf.lidarProfile.Loader = class {
         Math.abs(domainX[1] - this.manager_.plot.previousDomainX[1]) < xTolerance) {
 
       this.manager_.plot.drawPoints(this.profilePoints,
-        this.manager_.options.profileConfig.server.default_attribute);
+        this.manager_.config.serverConfig.default_attribute);
 
     } else {
-      if (maxLODWidth.maxLOD <= this.manager_.options.profileConfig.server.initialLOD) {
+      if (maxLODWidth.maxLOD <= this.manager_.config.serverConfig.initialLOD) {
         this.manager_.plot.drawPoints(this.profilePoints,
-          this.manager_.options.profileConfig.server.default_attribute);
+          this.manager_.config.serverConfig.default_attribute);
       } else {
         this.getProfileByLOD(clip.distanceOffset, false, 0);
 

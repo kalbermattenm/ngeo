@@ -30,9 +30,15 @@ gmf.lidarProfile.Config = class {
     this.pytreeLidarProfileJsonUrl = pytreeLidarProfileJsonUrl;
 
     /**
+     * @type {boolean}
+     */
+    this.loaded = false;
+
+    /**
+     * The client configuration.
      * @type {gmfx.LidarProfileClientConfig}
      */
-    const clientConfig = {
+    this.clientConfig = {
       autoWidth: true,
       margin: {
         'left': 40,
@@ -46,13 +52,10 @@ gmf.lidarProfile.Config = class {
     };
 
     /**
-     * @type {gmfx.LidarProfileConfig}
+     * The configuration from the LIDAR server.
+     * @type {lidarProfileServer.Config}
      */
-    this.profileConfig = {
-      client: clientConfig,
-      server: null,
-      loaded: false
-    };
+    this.serverConfig = null;
   }
 
 
@@ -64,7 +67,7 @@ gmf.lidarProfile.Config = class {
   initProfileConfig() {
     return this.$http_.get(`${this.pytreeLidarProfileJsonUrl}/profile_config_gmf2`).then((resp) => {
 
-      this.profileConfig.server = /** @type {lidarProfileServer.Config} */ ({
+      this.serverConfig = /** @type {lidarProfileServer.Config} */ ({
         classification_colors: resp.data['classification_colors'] || null,
         debug: !!resp.data['debug'],
         default_attribute: resp.data['default_attribute'] || '',
@@ -81,15 +84,15 @@ gmf.lidarProfile.Config = class {
       });
 
       const attr = [];
-      for (const key in this.profileConfig.server.point_attributes) {
-        if (this.profileConfig.server.point_attributes[key].visible == 1) {
-          attr.push(this.profileConfig.server.point_attributes[key]);
+      for (const key in this.serverConfig.point_attributes) {
+        if (this.serverConfig.point_attributes[key].visible == 1) {
+          attr.push(this.serverConfig.point_attributes[key]);
         }
       }
 
-      const selectedMat = this.profileConfig.server.point_attributes[this.profileConfig.server.default_point_attribute];
+      const selectedMat = this.serverConfig.point_attributes[this.serverConfig.default_point_attribute];
 
-      this.profileConfig.client.pointAttributes = {
+      this.clientConfig.pointAttributes = {
         availableOptions: attr,
         selectedOption: selectedMat
       };

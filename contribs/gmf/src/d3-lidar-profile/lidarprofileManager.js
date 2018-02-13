@@ -55,14 +55,14 @@ gmf.lidarProfile.Manager = class {
     /**
      * @type {gmf.lidarProfile.Config}
      */
-    this.options = null;
+    this.config = null;
   }
 
   /**
-   * @param {gmf.lidarProfile.Config} options Instance of gmf.lidarProfile.Config
+   * @param {gmf.lidarProfile.Config} config Instance of gmf.lidarProfile.Config
    */
-  init(options) {
-    this.options = options;
+  init(config) {
+    this.config = config;
     this.plot = new gmf.lidarProfile.Plot(this);
     this.loader = new gmf.lidarProfile.Loader(this);
     this.measure = new gmf.lidarProfile.Measure(this);

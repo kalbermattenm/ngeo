@@ -6,15 +6,15 @@ gmf.lidarProfile.Utils = class {
   /**
    * FIXME missing description
    * @struct
-   * @param {gmf.lidarProfile.Config} options Instance of gmf.lidarProfile.Config
+   * @param {gmf.lidarProfile.Config} config Instance of gmf.lidarProfile.Config
    */
-  constructor(options) {
+  constructor(config) {
 
     /**
      * @type {gmf.lidarProfile.Config}
      * @private
      */
-    this.options_ = options;
+    this.config_ = config;
 
     /**
      * @type {ol.Map}
@@ -75,10 +75,10 @@ gmf.lidarProfile.Utils = class {
     });
 
     let profileWidth;
-    if (this.options_.profileConfig.client.autoWidth) {
+    if (this.config_.clientConfig.autoWidth) {
       profileWidth = this.getNiceLOD(clippedLine.getLength()).width;
     } else {
-      profileWidth = this.options_.profileConfig.server.width;
+      profileWidth = this.config_.serverConfig.width;
     }
     const feat = new ol.Feature({
       geometry: clippedLine
@@ -177,7 +177,7 @@ gmf.lidarProfile.Utils = class {
   getNiceLOD(span) {
     let maxLOD = 0;
     let width = 0;
-    const levels = this.options_.profileConfig.server.max_levels;
+    const levels = this.config_.serverConfig.max_levels;
     for (const key in levels) {
       const level = parseInt(key, 10);
       if (span < level && levels[level].max > maxLOD) {
@@ -351,7 +351,7 @@ gmf.lidarProfile.Utils = class {
       if (sx(d.distance[i]) < xs + tol && sx(d.distance[i]) > xs - tol && sy(d.altitude[i]) < ys + tol && sy(d.altitude[i]) > ys - tol) {
 
         const pDistance =  Math.sqrt(Math.pow((sx(d.distance[i]) - xs), 2) + Math.pow((sy(d.altitude[i]) - ys), 2));
-        const cClassif = this.options_.profileConfig.server.classification_colors[d.classification[i]];
+        const cClassif = this.config_.serverConfig.classification_colors[d.classification[i]];
         if (cClassif && cClassif.visible == 1) {
 
           hP.push({

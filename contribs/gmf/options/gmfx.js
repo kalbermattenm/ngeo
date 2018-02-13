@@ -112,15 +112,6 @@ gmfx.GridSource.prototype.source;
  */
 gmfx.GridMergeTabs;
 
-/**
- * The object containing all the configuration for the LIDAR profile
- * @typedef {{
- * client: (gmfx.LidarProfileClientConfig),
- * server: (lidarProfileServer.Config),
- * loaded: (boolean|undefined)
- * }}
- */
-gmfx.LidarProfileConfig;
 
 /**
  * The object containing all points in profile
@@ -134,6 +125,7 @@ gmfx.LidarProfileConfig;
  */
 gmfx.LidarProfileClientConfig;
 
+
 /**
  * The object containing all points in profile
  * @typedef {{
@@ -146,6 +138,7 @@ gmfx.LidarProfileClientConfig;
  * }}
  */
 gmfx.LidarProfilePoints;
+
 
 /**
  * Profile point after measure or after parsing of the binary array returned by Pytree

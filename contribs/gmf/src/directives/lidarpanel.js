@@ -57,7 +57,7 @@ gmf.LidarPanelController = class {
   /**
    * @param {angular.Scope} $scope Angular scope.
    * @param {gmf.lidarProfile.Manager} gmfLidarProfileManager gmf gmfLidarProfileManager.
-   * @param {gmf.lidarProfile.Config} gmfLidarProfileConfig gmf gmfLidarProfileConfig.
+   * @param {gmf.lidarProfile.Config} gmfLidarProfileConfig gmf Lidar profile config.
    * @param {ngeo.ToolActivateMgr} ngeoToolActivateMgr Ngeo ToolActivate manager service
    * @param {ngeo.ToolActivate} ngeoToolActivate Ngeo ToolActivate service.
    * @param {ngeo.CsvDownload} ngeoCsvDownload The csv download function.
@@ -77,14 +77,15 @@ gmf.LidarPanelController = class {
 
     /**
      * @type {gmf.lidarProfile.Config}
+     * @private_
      */
-    this.gmfLidarProfileConfig = gmfLidarProfileConfig;
+    this.profileConfig_ = gmfLidarProfileConfig;
 
     /**
      * @type {gmf.lidarProfile.Manager}
      */
     this.profile = gmfLidarProfileManager;
-    this.profile.init(this.gmfLidarProfileConfig);
+    this.profile.init(this.profileConfig_);
 
     /**
      * @type {boolean}
@@ -153,7 +154,7 @@ gmf.LidarPanelController = class {
    * @private
    */
   initConfigAndActivateTool_() {
-    this.gmfLidarProfileConfig.initProfileConfig().then((resp) => {
+    this.profileConfig_.initProfileConfig().then((resp) => {
       this.ready = true;
       this.ngeoToolActivateMgr_.activateTool(this.tool);
     });
@@ -184,7 +185,7 @@ gmf.LidarPanelController = class {
     this.profile.loader.clearBuffer();
     if (this.line) {
       this.profile.loader.setLine(this.line);
-      this.profile.loader.getProfileByLOD(0, true, this.gmfLidarProfileConfig.profileConfig.server.minLOD);
+      this.profile.loader.getProfileByLOD(0, true, this.profileConfig_.serverConfig.minLOD);
     } else {
       this.profile.loader.cartoHighlight.setPosition(undefined);
     }
@@ -228,7 +229,7 @@ gmf.LidarPanelController = class {
    * @export
    */
   getAvailablePointAttributes() {
-    return this.gmfLidarProfileConfig.profileConfig.client.pointAttributes.availableOptions;
+    return this.profileConfig_.clientConfig.pointAttributes.availableOptions;
   }
 
 
@@ -240,10 +241,10 @@ gmf.LidarPanelController = class {
    */
   getSetSelectedPointAttribute(opt_selectedOption) {
     if (opt_selectedOption !== undefined) {
-      this.gmfLidarProfileConfig.profileConfig.client.pointAttributes.selectedOption = opt_selectedOption;
+      this.profileConfig_.clientConfig.pointAttributes.selectedOption = opt_selectedOption;
       this.profile.plot.changeStyle(opt_selectedOption.value);
     }
-    return this.gmfLidarProfileConfig.profileConfig.client.pointAttributes.selectedOption;
+    return this.profileConfig_.clientConfig.pointAttributes.selectedOption;
   }
 
 
@@ -253,7 +254,7 @@ gmf.LidarPanelController = class {
    * @return {lidarProfileServer.ConfigClassifications} classification list
    */
   getClassification() {
-    return this.gmfLidarProfileConfig.profileConfig.server.classification_colors;
+    return this.profileConfig_.servcerConfig.classification_colors;
   }
 
 
@@ -264,10 +265,10 @@ gmf.LidarPanelController = class {
    * @param {number} key of the classification code
    */
   setClassification(classification, key) {
-    this.gmfLidarProfileConfig.profileConfig.server.classification_colors[key].visible = classification.visible;
+    this.profileConfig_.serverConfig.classification_colors[key].visible = classification.visible;
     if (this.line) {
-      this.profile.plot.setClassActive(this.gmfLidarProfileConfig.profileConfig.server.classification_colors,
-        this.gmfLidarProfileConfig.profileConfig.server.default_attribute);
+      this.profile.plot.setClassActive(this.profileConfig_.serverConfig.classification_colors,
+        this.profileConfig_.serverConfig.default_attribute);
     }
   }
 
@@ -280,13 +281,13 @@ gmf.LidarPanelController = class {
    */
   getSetWidth(opt_profileWidth) {
     if (opt_profileWidth !== undefined) {
-      this.gmfLidarProfileConfig.profileConfig.server.width = opt_profileWidth;
+      this.profileConfig_.serverConfig.width = opt_profileWidth;
       if (this.line) {
         this.profile.loader.clearBuffer();
-        this.profile.loader.getProfileByLOD(0, true, this.gmfLidarProfileConfig.profileConfig.server.minLOD);
+        this.profile.loader.getProfileByLOD(0, true, this.profileConfig_.serverConfig.minLOD);
       }
     }
-    return this.gmfLidarProfileConfig.profileConfig.server.width;
+    return this.profileConfig_.serverConfig.width;
   }
 
 
@@ -298,13 +299,13 @@ gmf.LidarPanelController = class {
    */
   getSetAutoWidth(opt_autoWidth) {
     if (opt_autoWidth !== undefined) {
-      this.gmfLidarProfileConfig.profileConfig.client.autoWidth = opt_autoWidth;
+      this.profileConfig_.clientConfig.autoWidth = opt_autoWidth;
       if (this.line) {
         this.profile.loader.clearBuffer();
-        this.profile.loader.getProfileByLOD(0, true, this.gmfLidarProfileConfig.profileConfig.server.minLOD);
+        this.profile.loader.getProfileByLOD(0, true, this.profileConfig_.serverConfig.minLOD);
       }
     }
-    return this.gmfLidarProfileConfig.profileConfig.client.autoWidth;
+    return this.profileConfig_.clientConfig.autoWidth;
   }
 
 
@@ -331,7 +332,7 @@ gmf.LidarPanelController = class {
    */
   pngExport() {
     if (this.line) {
-      this.profile.loader.utils.downloadProfileAsImageFile(this.gmfLidarProfileConfig.profileConfig.client);
+      this.profile.loader.utils.downloadProfileAsImageFile(this.profileConfig_.clientConfig);
     }
   }
 };

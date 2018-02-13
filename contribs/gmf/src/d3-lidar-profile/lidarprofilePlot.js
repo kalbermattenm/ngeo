@@ -22,7 +22,7 @@ gmf.lidarProfile.Plot = class {
      * @type {gmf.lidarProfile.Utils}
      * @private
      */
-    this.utils_ = new gmf.lidarProfile.Utils(this.manager_.options);
+    this.utils_ = new gmf.lidarProfile.Utils(this.manager_.config);
 
     /**
      * d3.scaleLinear X scale.
@@ -71,7 +71,7 @@ gmf.lidarProfile.Plot = class {
     const nPoints = points.distance.length;
     let cx, cy;
     const ctx = d3.select('#profileCanvas').node().getContext('2d');
-    const profileServerConfig = this.manager_.options.profileConfig.server;
+    const profileServerConfig = this.manager_.config.serverConfig;
 
     while (++i < nPoints) {
 
@@ -117,7 +117,7 @@ gmf.lidarProfile.Plot = class {
       .node().getContext('2d');
     ctx.clearRect(0, 0, canvasEl.getBoundingClientRect().width, canvasEl.getBoundingClientRect().height);
 
-    const margin = this.manager_.options.profileConfig.client.margin;
+    const margin = this.manager_.config.clientConfig.margin;
     const containerWidth = d3.select('.gmf-lidar-profile-container').node().getBoundingClientRect().width;
     const containerHeight = d3.select('.gmf-lidar-profile-container').node().getBoundingClientRect().height;
     this.width_ = containerWidth - (margin.left + margin.right);
@@ -267,9 +267,9 @@ gmf.lidarProfile.Plot = class {
    */
   pointHighlight() {
     const svg = d3.select('svg#profileSVG');
-    const pointSize = this.manager_.options.profileConfig.server.point_size;
-    const margin = this.manager_.options.profileConfig.client.margin;
-    const tolerance = this.manager_.options.profileConfig.client.tolerance || 0;
+    const pointSize = this.manager_.config.serverConfig.point_size;
+    const margin = this.manager_.config.clientConfig.margin;
+    const tolerance = this.manager_.config.clientConfig.tolerance || 0;
 
     const canvasCoordinates = d3.mouse(d3.select('#profileCanvas').node());
 
@@ -292,7 +292,7 @@ gmf.lidarProfile.Plot = class {
         .style('fill', 'orange');
 
       const pClassification = p.classification || -1;
-      const pointClassification = this.manager_.options.profileConfig.server.classification_colors[pClassification] || {};
+      const pointClassification = this.manager_.config.serverConfig.classification_colors[pClassification] || {};
 
       const html = `Distance: ${Math.round(10 * p.distance) / 10}<br>
       Altitude: ${Math.round(10 * p.altitude) / 10}<br>
@@ -354,7 +354,7 @@ gmf.lidarProfile.Plot = class {
   * @export
   */
   setClassActive(classification, material) {
-    this.manager_.options.profileConfig.server.classification_colors = classification;
+    this.manager_.config.serverConfig.classification_colors = classification;
     const ctx = d3.select('#profileCanvas')
       .node().getContext('2d');
     ctx.clearRect(0, 0, d3.select('#profileCanvas').node().width, d3.select('#profileCanvas').node().height);
