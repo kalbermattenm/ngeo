@@ -171,7 +171,7 @@ gmf.lidarProfile.Utils = class {
    * @export
    */
   downloadProfileAsImageFile(profileClientConfig) {
-    const profileSVG = d3.select('#profileSVG');
+    const profileSVG = d3.select('#gmf-lidar-profile-container svg.lidar-svg');
     const w = parseInt(profileSVG.attr('width'), 10);
     const h = parseInt(profileSVG.attr('height'), 10);
     const margin = profileClientConfig.margin;
@@ -186,7 +186,7 @@ gmf.lidarProfile.Utils = class {
     ctx.fillRect(0, 0, w, h);
 
     // Draw the profile canvas (the points) into the new canvas.
-    const profileCanvas = d3.select('#profileCanvas').node();
+    const profileCanvas = d3.select('#gmf-lidar-profile-container .lidar-canvas').node();
     ctx.drawImage(profileCanvas, margin.left, margin.top,
       w - (margin.left + margin.right), h - (margin.top + margin.bottom));
 

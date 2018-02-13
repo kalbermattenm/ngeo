@@ -14,17 +14,29 @@ gmf.lidarProfile.Manager = class {
    *
    * @struct
    * @param {angular.$http} $http Angular http service.
-   * @param {ngeo.Debounce} ngeoDebounce ngeo debounce service
+   * @param {angular.$filter} $filter Angular filter.
+   * @param {angularGettext.Catalog} gettextCatalog Gettext catalog.
+   * @param {ngeo.Debounce} ngeoDebounce ngeo debounce service.
    * @ngInject
    * @ngdoc service
    * @ngname gmflidarProfileManager
    */
-  constructor($http, ngeoDebounce) {
+  constructor($http, $filter, gettextCatalog, ngeoDebounce) {
 
     /**
      * @type {angular.$http}
      */
     this.$http = $http;
+
+    /**
+     * @type {angular.$filter}
+     */
+    this.$filter = $filter;
+
+    /**
+     * @type {angularGettext.Catalog}
+     */
+    this.gettextCatalog = gettextCatalog;
 
     /**
      * @type {ngeo.Debounce}
@@ -191,7 +203,7 @@ gmf.lidarProfile.Manager = class {
       this.isPlotSetup_ = false;
     }
 
-    d3.select('#lidarError').style('visibility', 'hidden');
+    d3.select('#gmf-lidar-profile-container .lidar-error').style('visibility', 'hidden');
     let pytreeLinestring = this.utils.getPytreeLinestring(this.line_);
 
     let maxLODWith;
@@ -214,7 +226,7 @@ gmf.lidarProfile.Manager = class {
     }
 
     let lastLOD = false;
-    d3.select('#lodInfo').html('');
+    d3.select('#gmf-lidar-profile-container .lod-info').html('');
     this.config.clientConfig.pointSum = 0;
     let profileWidth = 0;
     if (this.config.clientConfig.autoWidth) {
@@ -223,7 +235,7 @@ gmf.lidarProfile.Manager = class {
       profileWidth = this.config.serverConfig.width;
     }
 
-    d3.select('#widthInfo').html(`Profile width: ${profileWidth}m`);
+    d3.select('#gmf-lidar-profile-container .width-info').html(`Profile width: ${profileWidth}m`);
 
     for (let i = 0; i < maxLODWith.maxLOD; i++) {
       if (i == 0) {
@@ -253,9 +265,9 @@ gmf.lidarProfile.Manager = class {
    */
   queryPytree_(minLOD, maxLOD, iter, coordinates, distanceOffset, lastLOD, width, resetPlot) {
     if (this.config.serverConfig.debug) {
-      let html = d3.select('#lodInfo').html();
+      let html = d3.select('#gmf-lidar-profile-container .lod-info').html();
       html += `Loading LOD: ${minLOD}-${maxLOD}...<br>`;
-      d3.select('#lodInfo').html(html);
+      d3.select('#gmf-lidar-profile-container .lod-info').html(html);
     }
 
     const pointCloudName = this.config.serverConfig.default_point_cloud;
@@ -269,9 +281,9 @@ gmf.lidarProfile.Manager = class {
       responseType: 'arraybuffer'
     }).then((response) => {
       if (this.config.serverConfig.debug) {
-        let html = d3.select('#lodInfo').html();
+        let html = d3.select('#gmf-lidar-profile-container .lod-info').html();
         html += `LOD: ${minLOD}-${maxLOD} loaded <br>`;
-        d3.select('#lodInfo').html(html);
+        d3.select('#gmf-lidar-profile-container .lod-info').html(html);
       }
       this.processBuffer_(response.data, iter, distanceOffset, lastLOD, resetPlot);
     }, (response) => {
@@ -305,23 +317,23 @@ gmf.lidarProfile.Manager = class {
 
     } catch (e) {
       if (!this.isPlotSetup_) {
-        const canvasEl = d3.select('#profileCanvas').node();
-        const ctx = d3.select('#profileCanvas')
+        const canvasEl = d3.select('#gmf-lidar-profile-container .lidar-canvas').node();
+        const ctx = d3.select('#gmf-lidar-profile-container .lidar-canvas')
           .node().getContext('2d');
         ctx.clearRect(0, 0, canvasEl.getBoundingClientRect().width, canvasEl.getBoundingClientRect().height);
-        d3.select('svg#profileSVG').selectAll('*').remove();
+        d3.select('#gmf-lidar-profile-container svg.lidar-svg').selectAll('*').remove();
         let errorTxt = '<p><b>Lidar profile service error</b></p>';
         errorTxt += '<p>It might be offline</p>';
         // TODO: check extent consistency earlier
         errorTxt += '<p>Or did you attempt to draw a profile outside data extent ?</p>';
         errorTxt += '<p>Or did you attempt to draw such a small profile that no point was returned ?</p>';
-        d3.select('#lidarError').style('visibility', 'visible');
-        d3.select('#lidarError').html(errorTxt);
+        d3.select('#gmf-lidar-profile-container .lidar-error').style('visibility', 'visible');
+        d3.select('#gmf-lidar-profile-container .lidar-error').html(errorTxt);
       }
       return;
     }
 
-    d3.select('#lidarError').style('visibility', 'hidden');
+    d3.select('#gmf-lidar-profile-container .lidar-error').style('visibility', 'hidden');
 
     const jHeader = JSON.parse(strHeaderLocal);
 
