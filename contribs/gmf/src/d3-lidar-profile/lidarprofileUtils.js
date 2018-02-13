@@ -199,7 +199,7 @@ gmf.lidarProfile.Utils = class {
     const img_id = 'lidare_profile_for_export_uid';
     exportImage.id = img_id;
     exportImage.src = `data:image/svg+xml;base64, ${btoa(svgStr)}`;
-    exportImage.style = 'display:none';
+    exportImage.style.setProperty('display', 'none');
     const main = document.getElementsByTagName('main')[0];
     // The image must be loaded to be drawn.
     exportImage.onload = () => {
@@ -210,14 +210,14 @@ gmf.lidarProfile.Utils = class {
         saveAs(blob, 'LIDAR_profile.png');
       });
     };
-    main.append(exportImage);
+    main.appendChild(exportImage);
   }
 
 
   /**
    * Transforms a lidarProfile into mutliple single points sorted by distance.
    * @param {gmfx.LidarProfilePoints} profilePoints in the profile
-   * @return {Array.<gmfx.LidarPoints>} An array of Lidar Points.
+   * @return {Array.<gmfx.LidarPoint>} An array of Lidar Points.
    */
   getFlatPointsByDistance(profilePoints) {
     const points = [];
@@ -239,7 +239,7 @@ gmf.lidarProfile.Utils = class {
 
   /**
    * Get the data for a CSV export of the profile.
-   * @param {gmfx.LidarPoints} points a lidar profile points object.
+   * @param {gmfx.LidarPoint} points a lidar profile points object.
    * @return {Array.<Object>} Objects for a csv export (column: value).
    * @export
    */
@@ -313,7 +313,7 @@ gmf.lidarProfile.Utils = class {
    * @param {Function} sx d3.scalelinear x scale
    * @param {Function} sy d3.scalelinear y scale
    * @param {lidarProfileServer.ConfigClassifications} classification_colors classification colors
-   * @return {gmfx.lidarPoint} closestPoint the closest point to the clicked coordinates
+   * @return {gmfx.LidarPoint} closestPoint the closest point to the clicked coordinates
    */
   getClosestPoint(points, xs, ys, tolerance, sx, sy, classification_colors) {
     const d = points;

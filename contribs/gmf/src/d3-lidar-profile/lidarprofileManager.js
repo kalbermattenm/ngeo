@@ -200,7 +200,8 @@ gmf.lidarProfile.Manager = class {
       maxLODWith = this.utils.getNiceLOD(this.line_.getLength(), max_levels);
     } else {
       const domain = this.plot.scaleX['domain']();
-      const map_resolution = this.map_ ? this.map_.getView().getResolution() : 0;
+      let map_resolution = this.map_ ? this.map_.getView().getResolution() : 0;
+      map_resolution = map_resolution || 0;
       const clip = this.utils.clipLineByMeasure(this.config, map_resolution,
         this.line_, domain[0], domain[1]);
       pytreeLinestring = '';
@@ -429,7 +430,8 @@ gmf.lidarProfile.Manager = class {
   updateData_() {
     const domainX = this.plot.scaleX['domain']();
     const domainY = this.plot.scaleY['domain']();
-    const map_resolution = this.map_ ? this.map_.getView().getResolution() : 0;
+    let map_resolution = this.map_ ? this.map_.getView().getResolution() : 0;
+    map_resolution = map_resolution || 0;
     const clip = this.utils.clipLineByMeasure(this.config, map_resolution,
       this.line_, domainX[0], domainX[1]);
 

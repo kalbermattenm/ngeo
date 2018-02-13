@@ -4,7 +4,6 @@ goog.require('gmf');
 goog.require('gmf.lidarProfile.Config');
 goog.require('gmf.lidarProfile.Manager');
 goog.require('ngeo.CsvDownload');
-goog.require('ngeo.Download');
 goog.require('ol.geom.LineString');
 
 
@@ -52,7 +51,10 @@ gmf.lidarPanelComponent = {
 gmf.module.component('gmfLidarPanel', gmf.lidarPanelComponent);
 
 
-gmf.LidarPanelController = class {
+/**
+ * @private
+ */
+gmf.LidarPanelController_ = class {
 
   /**
    * @param {angular.Scope} $scope Angular scope.
@@ -60,8 +62,7 @@ gmf.LidarPanelController = class {
    * @param {gmf.lidarProfile.Config} gmfLidarProfileConfig gmf Lidar profile config.
    * @param {ngeo.ToolActivateMgr} ngeoToolActivateMgr Ngeo ToolActivate manager service
    * @param {ngeo.ToolActivate} ngeoToolActivate Ngeo ToolActivate service.
-   * @param {ngeo.CsvDownload} ngeoCsvDownload The csv download function.
-   * @constructor
+   * @param {ngeo.CsvDownload} ngeoCsvDownload CSV Download service.
    * @private
    * @ngInject
    * @ngdoc controller
@@ -88,8 +89,15 @@ gmf.LidarPanelController = class {
 
     /**
      * @type {boolean}
+     * @export
      */
     this.active = false;
+
+    /**
+     * @type {ol.Map}
+     * @export
+     */
+    this.map = null;
 
     /**
      * The Openlayers LineString geometry of the profle
@@ -106,7 +114,7 @@ gmf.LidarPanelController = class {
     this.measureActive = false;
 
     /**
-     * @type {ngeo.Download}
+     * @type {ngeo.CsvDownload}
      * @private
      */
     this.ngeoCsvDownload_ = ngeoCsvDownload;
@@ -304,7 +312,7 @@ gmf.LidarPanelController = class {
         this.profile.getProfileByLOD(0, true, this.profileConfig_.serverConfig.minLOD);
       }
     }
-    return this.profileConfig_.clientConfig.autoWidth;
+    return !!this.profileConfig_.clientConfig.autoWidth;
   }
 
 
@@ -314,7 +322,7 @@ gmf.LidarPanelController = class {
    */
   csvExport() {
     if (this.line) {
-      const points = this.profile.utils.getFlatPointsByDistance(this.profile.profilePoints);
+      const points = this.profile.utils.getFlatPointsByDistance(this.profile.profilePoints) || {};
       const csvData = this.profile.utils.getCSVData(points);
       let headerColumns = Object.keys(points[0]);
       headerColumns = headerColumns.map((column) => {
@@ -336,4 +344,4 @@ gmf.LidarPanelController = class {
   }
 };
 
-gmf.module.controller('gmfLidarPanelController', gmf.LidarPanelController);
+gmf.module.controller('gmfLidarPanelController', gmf.LidarPanelController_);

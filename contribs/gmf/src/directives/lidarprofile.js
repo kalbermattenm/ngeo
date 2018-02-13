@@ -45,11 +45,13 @@ gmf.lidarProfileComponent = {
 gmf.module.component('gmfLidarProfile', gmf.lidarProfileComponent);
 
 
-gmf.LidarProfileController = class {
+/**
+ * @private
+ */
+gmf.LidarProfileController_ = class {
 
   /**
    * @param {angular.Scope} $scope Angular scope.
-   * @constructor
    * @private
    * @ngInject
    * @ngdoc controller
@@ -83,4 +85,4 @@ gmf.LidarProfileController = class {
 };
 
 
-gmf.module.controller('GmfLidarProfileController', gmf.LidarProfileController);
+gmf.module.controller('GmfLidarProfileController', gmf.LidarProfileController_);

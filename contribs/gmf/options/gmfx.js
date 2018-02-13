@@ -118,7 +118,7 @@ gmfx.GridMergeTabs;
  * @typedef {{
  *  autoWidth: (boolean|undefined),
  *  margin: (Object.<string, number>|undefined),
- *  pointAttributes: (gmfx.lidarPointAttributeList|undefined),
+ *  pointAttributes: (gmfx.LidarPointAttributeList|undefined),
  *  pointSum: (number|undefined),
  *  tolerance: (number|undefined)
  * }}
@@ -152,7 +152,7 @@ gmfx.LidarProfilePoints;
  * set: (boolean|undefined)
  * }}
  */
-gmfx.lidarPoint;
+gmfx.LidarPoint;
 
 
 /**
@@ -162,7 +162,7 @@ gmfx.lidarPoint;
  *   selectedOption: (lidarProfileServer.ConfigPointAttributes|undefined)
  * }}
  */
-gmfx.lidarPointAttributeList;
+gmfx.LidarPointAttributeList;
 
 /**
  * Projection object for the MousePositionDirective. Define a label and a filter

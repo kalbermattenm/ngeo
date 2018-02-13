@@ -17,13 +17,13 @@ gmf.lidarProfile.Measure = class {
     this.manager_ = gmfLidarProfileManagerInstance;
 
     /**
-     * @type {!gmfx.lidarPoint}
+     * @type {!gmfx.LidarPoint}
      * @private
      */
     this.pStart_ = {};
 
     /**
-     * @type {!gmfx.lidarPoint}
+     * @type {!gmfx.LidarPoint}
      * @private
      */
     this.pEnd_ = {};
