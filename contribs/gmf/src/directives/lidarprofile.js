@@ -36,14 +36,13 @@ gmf.lidarProfileComponent = {
   controller: 'GmfLidarProfileController',
   bindings: {
     'active': '=gmfLidarProfileActive',
-    'line': '=gmfLidarProfileLine',
+    'line': '=gmfLidarProfileLine'
   },
   templateUrl: gmfLidarProfileTemplateUrl
 };
 
 
 gmf.module.component('gmfLidarProfile', gmf.lidarProfileComponent);
-
 
 
 gmf.LidarProfileController = class {
@@ -55,7 +54,7 @@ gmf.LidarProfileController = class {
    * @ngInject
    * @ngdoc controller
    * @ngname GmfLidarProfileController
-  */  
+  */
   constructor($scope) {
 
     /**
@@ -79,7 +78,7 @@ gmf.LidarProfileController = class {
         if (oldLine !== newLine) {
           this.active = !!this.line;
         }
-    });
+      });
   }
 };
 
