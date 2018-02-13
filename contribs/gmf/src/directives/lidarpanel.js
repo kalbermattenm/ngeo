@@ -69,6 +69,11 @@ gmf.LidarPanelController = function($scope, gmfLidarProfileManager, gmfLidarProf
   ngeoToolActivateMgr, ngeoToolActivate, ngeoCsvDownload) {
 
   /**
+   * @type {boolean}
+   */
+  this.ready = false;
+
+  /**
    * @type {gmf.lidarProfile.Config}
    */
   this.gmfLidarProfileConfig = gmfLidarProfileConfig;
@@ -82,51 +87,21 @@ gmf.LidarPanelController = function($scope, gmfLidarProfileManager, gmfLidarProf
   /**
    * @type {boolean}
    */
-  this.active;
+  this.active = false;
 
   /**
-  * The Openlayers LineString geometry of the profle
-  * @type {ol.geom.LineString}
-  * @export
-  */
+   * The Openlayers LineString geometry of the profle
+   * @type {ol.geom.LineString}
+   * @export
+   */
   this.line;
 
   /**
-  * The width of the profile
-  * @type {number}
-  * @export
-  */
-  this.profilWidth;
-
-  /**
-  * Get the width of the profile from Pytree config
-  * @type {boolean}
-  * @export
-  */
-  this.autoWidth = true;
-
-  /**
-  * State of the measure tool
-  * @type {boolean}
-  * @export
-  */
-  this.measureActive = false;
-
-  /**
-   * selected options
-   * @type {lidarProfileServer.ConfigPointAttributes|undefined}
+   * State of the measure tool
+   * @type {boolean}
    * @export
    */
-  this.selectOption;
-
-  // Watch the line to update the profileData (data for the chart).
-  $scope.$watch(
-    () => this.line,
-    (newLine, oldLine) => {
-      if (oldLine !== newLine) {
-        this.update_();
-      }
-    });
+  this.measureActive = false;
 
   /**
    * @type {ngeo.Download}
@@ -144,11 +119,21 @@ gmf.LidarPanelController = function($scope, gmfLidarProfileManager, gmfLidarProf
   this.tool = new ngeo.ToolActivate(this, 'active');
   this.ngeoToolActivateMgr_.registerTool('mapTools', this.tool, false);
 
+  // Activate the controls inside the panel.
   $scope.$watch(
     () => this.active,
     (newValue, oldValue) => {
       if (oldValue !== newValue) {
         this.updateEventsListening_(newValue);
+      }
+    });
+
+  // Watch the line to update the profileData (data for the chart).
+  $scope.$watch(
+    () => this.line,
+    (newLine, oldLine) => {
+      if (oldLine !== newLine) {
+        this.update_();
       }
     });
 
@@ -159,13 +144,20 @@ gmf.LidarPanelController = function($scope, gmfLidarProfileManager, gmfLidarProf
  * @private
  */
 gmf.LidarPanelController.prototype.$onInit = function() {
-  this.active = this.active;
+  this.profile.loader.setMap(this.map);
+};
+
+
+/**
+ * @private
+ */
+gmf.LidarPanelController.prototype.initConfigAndActivateTool_ = function() {
   this.gmfLidarProfileConfig.initProfileConfig().then((resp) => {
     this.ready = true;
-    this.profile.loader.setMap(this.map);
-    this.selectedOption = this.gmfLidarProfileConfig.profileConfig.pointAttributes.selectedOption;
+    this.ngeoToolActivateMgr_.activateTool(this.tool);
   });
 };
+
 
 /**
  * @param {boolean} activate Activation state of the plugin
@@ -173,11 +165,16 @@ gmf.LidarPanelController.prototype.$onInit = function() {
  */
 gmf.LidarPanelController.prototype.updateEventsListening_ = function(activate) {
   if (activate === true) {
-    this.ngeoToolActivateMgr_.activateTool(this.tool);
+    if (!this.ready) {
+      this.initConfigAndActivateTool_();
+    } else {
+      this.ngeoToolActivateMgr_.activateTool(this.tool);
+    }
   } else {
     this.ngeoToolActivateMgr_.deactivateTool(this.tool);
   }
 };
+
 
 /**
  * Activate the measure tool
@@ -189,6 +186,7 @@ gmf.LidarPanelController.prototype.setMeasureActive = function() {
   this.profile.measure.setMeasureActive();
 };
 
+
 /**
  * Clear the current measure
  * @export
@@ -197,6 +195,7 @@ gmf.LidarPanelController.prototype.clearMeasure = function() {
   this.measureActive = false;
   this.profile.measure.clearMeasure();
 };
+
 
 /**
  * Reload and reset the plot for the current profile (reloads data)
@@ -209,53 +208,39 @@ gmf.LidarPanelController.prototype.resetPlot = function() {
 
 
 /**
+ * Get all available point attributes.
+ * @return {Array.<lidarProfileServer.ConfigPointAttributes>|undefined} available point attributes.
+ * @export
+ */
+gmf.LidarPanelController.prototype.getAvailablePointAttributes = function() {
+  return this.gmfLidarProfileConfig.profileConfig.client.pointAttributes.availableOptions;
+};
+
+
+/**
+ * Get / Set the selected point attribute
+ * @param {lidarProfileServer.ConfigPointAttributes=} opt_selectedOption the new selected point attribute.
+ * @return {lidarProfileServer.ConfigPointAttributes|undefined} Selected point attribute
+ * @export
+ */
+gmf.LidarPanelController.prototype.getSetSelectedPointAttribute = function(opt_selectedOption) {
+  if (opt_selectedOption !== undefined) {
+    this.gmfLidarProfileConfig.profileConfig.client.pointAttributes.selectedOption = opt_selectedOption;
+    this.profile.plot.changeStyle(opt_selectedOption.value);
+  }
+  return this.gmfLidarProfileConfig.profileConfig.client.pointAttributes.selectedOption;
+};
+
+
+/**
  * Get the available classifications for this dataset
  * @export
- * @return {Object} classification list
+ * @return {lidarProfileServer.ConfigClassifications} classification list
  */
 gmf.LidarPanelController.prototype.getClassification = function() {
   return this.gmfLidarProfileConfig.profileConfig.server.classification_colors;
 };
 
-/**
- * Get the avalaible point attributes for this dataset
- * @export
- * @return {Array.<lidarProfileServer.ConfigPointAttributes>|undefined} this.pointAttributes
- */
-gmf.LidarPanelController.prototype.getPointAttributes = function() {
-  return this.gmfLidarProfileConfig.profileConfig.client.pointAttributes.availableOptions;
-};
-
-/**
- * Get the selected point attribute
- * @export
- * @return {lidarProfileServer.ConfigPointAttributes|undefined} this.pointAttributes
- */
-gmf.LidarPanelController.prototype.getSelectedAttribute = function() {
-  return this.gmfLidarProfileConfig.profileConfig.client.pointAttributes.selectedOption;
-};
-
-/**
- * Set the profile points color for the selected attribute (material)
- * @export
- * @param {string} material string code
- */
-gmf.LidarPanelController.prototype.setDefaultAttribute = function(material) {
-  this.gmfLidarProfileConfig.profileConfig.server.default_attribute = material;
-  if (this.line) {
-    this.profile.plot.changeStyle(material);
-  }
-};
-
-/**
- * Get the width of the profile
- * @export
- * @return {number} width of the profile
- */
-gmf.LidarPanelController.prototype.getWidth = function() {
-  this.profilWidth = this.gmfLidarProfileConfig.profileConfig.server.width;
-  return this.profilWidth;
-};
 
 /**
  * Sets the visible classification in the profile
@@ -271,32 +256,42 @@ gmf.LidarPanelController.prototype.setClassification = function(classification, 
   }
 };
 
+
 /**
- * Sets the profil width and request new profile from Pytree
- * Sets the width of the profile and get a new profile from Pytree
+ * Get the profile width or set the profil width and request new profile from Pytree.
+ * @param {number=} opt_profileWidth the new profile width.
+ * @return {number} width of the profile
  * @export
- * @param {number} profileWidth set the width using user inputs and reload the profile
  */
-gmf.LidarPanelController.prototype.setWidth = function(profileWidth) {
-  this.gmfLidarProfileConfig.profileConfig.server.width = profileWidth;
-  if (this.line) {
-    this.profile.loader.clearBuffer();
-    this.profile.loader.getProfileByLOD(0, true, this.gmfLidarProfileConfig.profileConfig.server.minLOD);
+gmf.LidarPanelController.prototype.getSetWidth = function(opt_profileWidth) {
+  if (opt_profileWidth !== undefined) {
+    this.gmfLidarProfileConfig.profileConfig.server.width = opt_profileWidth;
+    if (this.line) {
+      this.profile.loader.clearBuffer();
+      this.profile.loader.getProfileByLOD(0, true, this.gmfLidarProfileConfig.profileConfig.server.minLOD);
+    }
   }
+  return this.gmfLidarProfileConfig.profileConfig.server.width;
 };
+
 
 /**
  * Use profile width defined per span and LOD in Pytree config
+ * @param {boolean=} opt_autoWidth use a precalculated profile width from pytree if true.
+ * @return {boolean} The autoWidth state
  * @export
- * @param {boolean} autoWidth use a precalculated profile width from pytree
  */
-gmf.LidarPanelController.prototype.setAutoWidth = function(autoWidth) {
-  this.gmfLidarProfileConfig.profileConfig.client.autoWidth = autoWidth;
-  if (this.line) {
-    this.profile.loader.clearBuffer();
-    this.profile.loader.getProfileByLOD(0, true, this.gmfLidarProfileConfig.profileConfig.server.minLOD);
+gmf.LidarPanelController.prototype.getSetAutoWidth = function(opt_autoWidth) {
+  if (opt_autoWidth !== undefined) {
+    this.gmfLidarProfileConfig.profileConfig.client.autoWidth = opt_autoWidth;
+    if (this.line) {
+      this.profile.loader.clearBuffer();
+      this.profile.loader.getProfileByLOD(0, true, this.gmfLidarProfileConfig.profileConfig.server.minLOD);
+    }
   }
+  return this.gmfLidarProfileConfig.profileConfig.client.autoWidth;
 };
+
 
 /**
  * Export the profile data to CSV file
@@ -314,6 +309,7 @@ gmf.LidarPanelController.prototype.csvExport = function() {
   }
 };
 
+
 /**
  * Export the current d3 chart to PNG file
  * @export
@@ -323,6 +319,7 @@ gmf.LidarPanelController.prototype.pngExport = function() {
     this.profile.loader.utils.downloadProfileAsImageFile(this.gmfLidarProfileConfig.profileConfig.client);
   }
 };
+
 
 /**
  * @private

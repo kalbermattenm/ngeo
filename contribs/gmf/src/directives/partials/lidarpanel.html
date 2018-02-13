@@ -1,4 +1,4 @@
-<div ng-show="$ctrl.ready"
+<div ng-if="$ctrl.ready && $ctrl.active"
      gmf-drawprofileline
      gmf-drawprofileline-active="$ctrl.active"
      gmf-drawprofileline-map="::$ctrl.map"
@@ -48,20 +48,20 @@
   <hr>
     {{'Material' | translate}}
   <select
-    ng-options="option.name for option in $ctrl.getPointAttributes()"
-    ng-model="$ctrl.selectedOption"
-    ng-change="$ctrl.setDefaultAttribute($ctrl.selectedOption.value)">
+    ng-options="option.name for option in ::$ctrl.getAvailablePointAttributes()"
+    ng-model-options="{getterSetter: true}"
+    ng-model="$ctrl.getSetSelectedPointAttribute">
   </select>
   </div>
   <hr>
   <div>
     <span>{{'Automatic width' | translate}}</span>
-    <input type="checkbox" ng-model="$ctrl.autoWidth" ng-change="$ctrl.setAutoWidth($ctrl.autoWidth)" checked>
+    <input type="checkbox"  ng-model="$ctrl.getSetAutoWidth" ng-model-options="{getterSetter: true}" checked>
     <br><br>
     </input>
-    <div ng-class="[{gmf_lidar_profile_automatic_width:$ctrl.autoWidth}]">
+    <div ng-class="[{gmf_lidar_profile_automatic_width:$ctrl.getSetAutoWidth()}]">
       <span>{{'Manual width' | translate}}</span>
-      <input ng-disabled="$ctrl.autoWidth" type="number" pattern="^(0|[1-9][0-9]*)$" min=1 max=100 step=1 ng-model="$ctrl.profilWidth" ng-value="$ctrl.getWidth()" ng-change="$ctrl.setWidth($ctrl.profilWidth)"></input>
+      <input ng-disabled="$ctrl.getSetAutoWidth()" type="number" pattern="^(0|[1-9][0-9]*)$" min=1 max=100 step=1 ng-model="$ctrl.getSetWidth" ng-model-options="{getterSetter: true}" ng-value="$ctrl.getSetWidth()"></input>
       [m]
     </div>
   </div>
@@ -73,6 +73,6 @@
     <span>{{classification.name}}</span>
   </div>
 </div>
-<div ng-hide="$ctrl.ready">
+<div ng-if="!$ctrl.ready || ! $ctrl.active">
  <p>{{'Initializing, please wait...' | translate}}</p>
 </div>
