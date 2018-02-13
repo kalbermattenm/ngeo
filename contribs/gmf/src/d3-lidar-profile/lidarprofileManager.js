@@ -264,10 +264,11 @@ gmf.lidarProfile.Manager = class {
    * @private
    */
   queryPytree_(minLOD, maxLOD, iter, coordinates, distanceOffset, lastLOD, width, resetPlot) {
+    const lodInfo = d3.select('#gmf-lidar-profile-container .lod-info');
     if (this.config.serverConfig.debug) {
-      let html = d3.select('#gmf-lidar-profile-container .lod-info').html();
+      let html = lodInfo.html();
       html += `Loading LOD: ${minLOD}-${maxLOD}...<br>`;
-      d3.select('#gmf-lidar-profile-container .lod-info').html(html);
+      lodInfo.html(html);
     }
 
     const pointCloudName = this.config.serverConfig.default_point_cloud;
@@ -281,9 +282,9 @@ gmf.lidarProfile.Manager = class {
       responseType: 'arraybuffer'
     }).then((response) => {
       if (this.config.serverConfig.debug) {
-        let html = d3.select('#gmf-lidar-profile-container .lod-info').html();
+        let html = lodInfo.html();
         html += `LOD: ${minLOD}-${maxLOD} loaded <br>`;
-        d3.select('#gmf-lidar-profile-container .lod-info').html(html);
+        lodInfo.html(html);
       }
       this.processBuffer_(response.data, iter, distanceOffset, lastLOD, resetPlot);
     }, (response) => {
@@ -302,6 +303,8 @@ gmf.lidarProfile.Manager = class {
    * @private
    */
   processBuffer_(profile, iter, distanceOffset, lastLOD, resetPlot) {
+    const lidarError = d3.select('#gmf-lidar-profile-container .lidar-error');
+
     const typedArrayInt32 = new Int32Array(profile, 0, 4);
     const headerSize = typedArrayInt32[0];
 
@@ -317,23 +320,23 @@ gmf.lidarProfile.Manager = class {
 
     } catch (e) {
       if (!this.isPlotSetup_) {
-        const canvasEl = d3.select('#gmf-lidar-profile-container .lidar-canvas').node();
-        const ctx = d3.select('#gmf-lidar-profile-container .lidar-canvas')
-          .node().getContext('2d');
+        const canvas = d3.select('#gmf-lidar-profile-container .lidar-canvas');
+        const canvasEl = canvas.node();
+        const ctx = canvasEl.getContext('2d');
         ctx.clearRect(0, 0, canvasEl.getBoundingClientRect().width, canvasEl.getBoundingClientRect().height);
-        d3.select('#gmf-lidar-profile-container svg.lidar-svg').selectAll('*').remove();
+        canvas.selectAll('*').remove();
         let errorTxt = '<p><b>Lidar profile service error</b></p>';
         errorTxt += '<p>It might be offline</p>';
         // TODO: check extent consistency earlier
         errorTxt += '<p>Or did you attempt to draw a profile outside data extent ?</p>';
         errorTxt += '<p>Or did you attempt to draw such a small profile that no point was returned ?</p>';
-        d3.select('#gmf-lidar-profile-container .lidar-error').style('visibility', 'visible');
-        d3.select('#gmf-lidar-profile-container .lidar-error').html(errorTxt);
+        lidarError.style('visibility', 'visible');
+        lidarError.html(errorTxt);
       }
       return;
     }
 
-    d3.select('#gmf-lidar-profile-container .lidar-error').style('visibility', 'hidden');
+    lidarError.style('visibility', 'hidden');
 
     const jHeader = JSON.parse(strHeaderLocal);
 
