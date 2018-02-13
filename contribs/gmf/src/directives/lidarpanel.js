@@ -136,7 +136,6 @@ gmf.LidarPanelController = function($scope, gmfLidarProfileManager, gmfLidarProf
         this.update_();
       }
     });
-
 };
 
 

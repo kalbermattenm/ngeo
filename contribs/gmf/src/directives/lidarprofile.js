@@ -1,6 +1,5 @@
 goog.provide('gmf.lidarProfileComponent');
 goog.require('gmf');
-goog.require('gmf.lidarProfile.Config');
 
 
 gmf.module.value('gmfLidarProfileTemplateUrl',
@@ -38,8 +37,6 @@ gmf.lidarProfileComponent = {
   bindings: {
     'active': '=gmfLidarProfileActive',
     'line': '=gmfLidarProfileLine',
-    'getMapFn': '&?gmfLidarProfileMap',
-    'getOptionsFn': '&?gmfLidarProfileOptions'
   },
   templateUrl: gmfLidarProfileTemplateUrl
 };
@@ -48,83 +45,42 @@ gmf.lidarProfileComponent = {
 gmf.module.component('gmfLidarProfile', gmf.lidarProfileComponent);
 
 
-/**
- * @param {angular.Scope} $scope Angular scope.
- * @param {angular.$http} $http Angular http service.
- * @param {string} pytreeLidarProfileJsonUrl URL of GMF service JSON profile.
- * @param {gmf.lidarProfile.Config} gmfLidarProfileConfig LiDAR Profile Configuration Service
- * @constructor
- * @private
- * @ngInject
- * @ngdoc controller
- * @ngname GmfLidarProfileController
- */
-gmf.LidarProfileController = function($scope, $http, pytreeLidarProfileJsonUrl, gmfLidarProfileConfig) {
+
+gmf.LidarProfileController = class {
 
   /**
-   * @type {angular.Scope}
+   * @param {angular.Scope} $scope Angular scope.
+   * @constructor
    * @private
-   */
-  this.$scope_ = $scope;
+   * @ngInject
+   * @ngdoc controller
+   * @ngname GmfLidarProfileController
+  */  
+  constructor($scope) {
 
-  /**
-   * @type {angular.$http}
-   * @private
-   */
-  this.$http_ = $http;
+    /**
+     * The Openlayer LineStringt that defines the profile
+     * @type {ol.geom.LineString}
+     * @export
+     */
+    this.line;
 
-  /**
-   * @type {string}
-   * @private
-   */
-  this.pytreeLidarProfileJsonUrl_ = pytreeLidarProfileJsonUrl;
+    /**
+     * The profile active state
+     * @type {boolean}
+     * @export
+     */
+    this.active = false;
 
-  /**
-   * @type {ol.Map}
-   * @private
-   */
-  this.map_ = null;
-
-  /**
-   * The Openlayer LineStringt that defines the profile
-   * @type {ol.geom.LineString}
-   * @export
-   */
-  this.line;
-
-  /**
-   * The profile active state
-   * @type {boolean}
-   * @export
-   */
-  this.active = false;
-
-
-  // Watch the line to update the profileData (data for the chart).
-  $scope.$watch(
-    () => this.line,
-    (newLine, oldLine) => {
-      if (oldLine !== newLine) {
-        this.update_();
-      }
+    // Watch the line to update the profileData (data for the chart).
+    $scope.$watch(
+      () => this.line,
+      (newLine, oldLine) => {
+        if (oldLine !== newLine) {
+          this.active = !!this.line;
+        }
     });
-
-};
-
-
-/**
- * @private
- */
-gmf.LidarProfileController.prototype.$onInit = function() {
-  this.map_ = this['getMapFn'] ? this['getMapFn']() : null;
-};
-
-
-/**
- * @private
- */
-gmf.LidarProfileController.prototype.update_ = function() {
-  this.active = !!this.line;
+  }
 };
 
 
