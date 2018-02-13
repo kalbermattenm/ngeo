@@ -180,6 +180,7 @@ gmf.LidarPanelController_ = class {
         this.ngeoToolActivateMgr_.activateTool(this.tool);
       }
     } else {
+      this.clearAll();
       this.ngeoToolActivateMgr_.deactivateTool(this.tool);
     }
   }
@@ -194,8 +195,21 @@ gmf.LidarPanelController_ = class {
       this.profile.setLine(this.line);
       this.profile.getProfileByLOD(0, true, this.profileConfig_.serverConfig.minLOD);
     } else {
-      this.profile.cartoHighlight.setPosition(undefined);
+      this.clearAll();
     }
+  }
+
+  /**
+   * FIXME
+   * Clear the LIDAR profile tool.
+   * @export
+   */
+  clearAll() {
+    this.line = null;
+    this.profile.setLine(null);
+    this.clearMeasure();
+    this.resetPlot();
+    this.profile.cartoHighlight.setPosition(undefined);
   }
 
 
