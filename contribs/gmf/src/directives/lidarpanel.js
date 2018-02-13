@@ -85,7 +85,6 @@ gmf.LidarPanelController = class {
      * @type {gmf.lidarProfile.Manager}
      */
     this.profile = gmfLidarProfileManager;
-    this.profile.init(this.profileConfig_);
 
     /**
      * @type {boolean}
@@ -146,7 +145,7 @@ gmf.LidarPanelController = class {
    * @private
    */
   $onInit() {
-    this.profile.loader.setMap(this.map);
+    this.profile.init(this.profileConfig_, this.map);
   }
 
 
@@ -182,12 +181,12 @@ gmf.LidarPanelController = class {
    * @private
    */
   update_() {
-    this.profile.loader.clearBuffer();
+    this.profile.clearBuffer();
     if (this.line) {
-      this.profile.loader.setLine(this.line);
-      this.profile.loader.getProfileByLOD(0, true, this.profileConfig_.serverConfig.minLOD);
+      this.profile.setLine(this.line);
+      this.profile.getProfileByLOD(0, true, this.profileConfig_.serverConfig.minLOD);
     } else {
-      this.profile.loader.cartoHighlight.setPosition(undefined);
+      this.profile.cartoHighlight.setPosition(undefined);
     }
   }
 
@@ -218,8 +217,8 @@ gmf.LidarPanelController = class {
    * @export
    */
   resetPlot() {
-    this.profile.loader.clearBuffer();
-    this.profile.loader.getProfileByLOD(0, true, 0);
+    this.profile.clearBuffer();
+    this.profile.getProfileByLOD(0, true, 0);
   }
 
 
@@ -283,8 +282,8 @@ gmf.LidarPanelController = class {
     if (opt_profileWidth !== undefined) {
       this.profileConfig_.serverConfig.width = opt_profileWidth;
       if (this.line) {
-        this.profile.loader.clearBuffer();
-        this.profile.loader.getProfileByLOD(0, true, this.profileConfig_.serverConfig.minLOD);
+        this.profile.clearBuffer();
+        this.profile.getProfileByLOD(0, true, this.profileConfig_.serverConfig.minLOD);
       }
     }
     return this.profileConfig_.serverConfig.width;
@@ -301,8 +300,8 @@ gmf.LidarPanelController = class {
     if (opt_autoWidth !== undefined) {
       this.profileConfig_.clientConfig.autoWidth = opt_autoWidth;
       if (this.line) {
-        this.profile.loader.clearBuffer();
-        this.profile.loader.getProfileByLOD(0, true, this.profileConfig_.serverConfig.minLOD);
+        this.profile.clearBuffer();
+        this.profile.getProfileByLOD(0, true, this.profileConfig_.serverConfig.minLOD);
       }
     }
     return this.profileConfig_.clientConfig.autoWidth;
@@ -315,8 +314,8 @@ gmf.LidarPanelController = class {
    */
   csvExport() {
     if (this.line) {
-      const points = this.profile.loader.utils.getFlatPointsByDistance(this.profile.loader.profilePoints);
-      const csvData = this.profile.loader.utils.getCSVData(points);
+      const points = this.profile.utils.getFlatPointsByDistance(this.profile.profilePoints);
+      const csvData = this.profile.utils.getCSVData(points);
       let headerColumns = Object.keys(points[0]);
       headerColumns = headerColumns.map((column) => {
         return {'name': column};
@@ -332,7 +331,7 @@ gmf.LidarPanelController = class {
    */
   pngExport() {
     if (this.line) {
-      this.profile.loader.utils.downloadProfileAsImageFile(this.profileConfig_.clientConfig);
+      this.profile.utils.downloadProfileAsImageFile(this.profileConfig_.clientConfig);
     }
   }
 };

@@ -74,8 +74,8 @@ gmf.lidarProfile.Measure = class {
     const sx = this.manager_.plot.scaleX;
     const sy = this.manager_.plot.scaleY;
     const pointSize = 3;
-    const p = this.manager_.loader.utils.getClosestPoint(
-      this.manager_.loader.profilePoints,
+    const p = this.manager_.utils.getClosestPoint(
+      this.manager_.profilePoints,
       canvasCoordinates[0],
       canvasCoordinates[1],
       tolerance,

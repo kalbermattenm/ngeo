@@ -19,12 +19,6 @@ gmf.lidarProfile.Plot = class {
     this.manager_ = gmfLidarProfileManagerInstance;
 
     /**
-     * @type {gmf.lidarProfile.Utils}
-     * @private
-     */
-    this.utils_ = new gmf.lidarProfile.Utils();
-
-    /**
      * d3.scaleLinear X scale.
      * @type {Function}
      */
@@ -224,7 +218,7 @@ gmf.lidarProfile.Plot = class {
     const ctx = d3.select('#profileCanvas')
       .node().getContext('2d');
     ctx.clearRect(0, 0, this.width_, this.height_);
-    this.manager_.loader.updateData();
+    this.manager_.updateData();
   }
 
 
@@ -275,7 +269,7 @@ gmf.lidarProfile.Plot = class {
     const classification_colors = this.manager_.config.serverConfig.classification_colors;
 
     let cx, cy;
-    const p = this.utils_.getClosestPoint(this.manager_.loader.profilePoints,
+    const p = this.manager_.utils.getClosestPoint(this.manager_.profilePoints,
       canvasCoordinates[0], canvasCoordinates[1], tolerance, this.scaleX, this.scaleY, classification_colors);
 
     if (p != undefined) {
@@ -302,14 +296,14 @@ gmf.lidarProfile.Plot = class {
 
       d3.select('#profileInfo')
         .html(html);
-      this.manager_.loader.cartoHighlight.setElement(null);
+      this.manager_.cartoHighlight.setElement(null);
       const el = document.createElement('div');
       el.className += 'tooltip gmf-tooltip-measure';
       el.innerHTML = html;
 
-      this.manager_.loader.cartoHighlight.setElement(el);
-      this.manager_.loader.cartoHighlight.setPosition([p.coords[0], p.coords[1]]);
-      this.manager_.loader.lidarPointHighlight.getSource().clear();
+      this.manager_.cartoHighlight.setElement(el);
+      this.manager_.cartoHighlight.setPosition([p.coords[0], p.coords[1]]);
+      this.manager_.lidarPointHighlight.getSource().clear();
       const lidarPointGeom = new ol.geom.Point([p.coords[0], p.coords[1]]);
       const lidarPointFeature = new ol.Feature(lidarPointGeom);
       if (typeof (pointClassification.color) !== undefined) {
@@ -324,12 +318,12 @@ gmf.lidarProfile.Plot = class {
         }));
       }
 
-      this.manager_.loader.lidarPointHighlight.getSource().addFeature(lidarPointFeature);
+      this.manager_.lidarPointHighlight.getSource().addFeature(lidarPointFeature);
     } else {
-      this.manager_.loader.lidarPointHighlight.getSource().clear();
+      this.manager_.lidarPointHighlight.getSource().clear();
       svg.select('#highlightCircle').remove();
       d3.select('#profileInfo').html('');
-      this.manager_.loader.cartoHighlight.setPosition(undefined);
+      this.manager_.cartoHighlight.setPosition(undefined);
     }
   }
 
@@ -343,7 +337,7 @@ gmf.lidarProfile.Plot = class {
     const ctx = d3.select('#profileCanvas')
       .node().getContext('2d');
     ctx.clearRect(0, 0, d3.select('#profileCanvas').node().width, d3.select('#profileCanvas').node().height);
-    this.drawPoints(this.manager_.loader.profilePoints, material);
+    this.drawPoints(this.manager_.profilePoints, material);
   }
 
 
@@ -359,6 +353,6 @@ gmf.lidarProfile.Plot = class {
     const ctx = d3.select('#profileCanvas')
       .node().getContext('2d');
     ctx.clearRect(0, 0, d3.select('#profileCanvas').node().width, d3.select('#profileCanvas').node().height);
-    this.drawPoints(this.manager_.loader.profilePoints, material);
+    this.drawPoints(this.manager_.profilePoints, material);
   }
 };
