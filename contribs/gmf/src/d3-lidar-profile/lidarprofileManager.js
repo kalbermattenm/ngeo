@@ -417,18 +417,11 @@ gmf.lidarProfile.Manager = class {
 
     const rangeY = [this.utils.arrayMin(points.altitude), this.utils.arrayMax(points.altitude)];
 
-    if (iter == 0 && resetPlot) {
+    if (iter == 0 && resetPlot || !this.isPlotSetup_) {
       this.plot.setupPlot(rangeX, rangeY);
       this.isPlotSetup_ = true;
-      this.plot.drawPoints(points, this.config.serverConfig.default_attribute);
-
-    } else if (!this.isPlotSetup_) {
-      this.plot.setupPlot(rangeX, rangeY);
-      this.isPlotSetup_ = true;
-      this.plot.drawPoints(points, this.config.serverConfig.default_attribute);
-    } else {
-      this.plot.drawPoints(points, this.config.serverConfig.default_attribute);
     }
+    this.plot.drawPoints(points, this.config.serverConfig.default_attribute);
   }
 
   /**
