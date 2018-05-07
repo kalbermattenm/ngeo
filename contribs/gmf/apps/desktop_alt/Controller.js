@@ -12,6 +12,7 @@ import gmfControllersAbstractDesktopController from 'gmf/controllers/AbstractDes
 import './less/main.less';
 import appBase from '../appmodule.js';
 import gmfImportModule from 'gmf/import/module.js';
+import gmfLidarprofileModule from 'gmf/lidarprofile/module.js';
 import ngeoGooglestreetviewModule from 'ngeo/googlestreetview/module.js';
 import ngeoStatemanagerWfsPermalink from 'ngeo/statemanager/WfsPermalink.js';
 import ngeoRoutingModule from 'ngeo/routing/module.js';
@@ -39,9 +40,9 @@ if (!window.requestAnimationFrame) {
  */
 const exports = function($scope, $injector, ngeoFile, gettext, $q) {
   gmfControllersAbstractDesktopController.call(this, {
-    srid: 2056,
+    srid: 21781,
     mapViewConfig: {
-      center: [2551894, 1202362],
+      center: [632464, 185457],
       zoom: 3,
       resolutions: [250, 100, 50, 20, 10, 5, 2, 1, 0.5, 0.25, 0.1, 0.05]
     }
@@ -149,6 +150,7 @@ exports.module = angular.module('Appdesktop_alt', [
   appBase.module.name,
   gmfControllersAbstractDesktopController.module.name,
   gmfImportModule.name,
+  gmfLidarprofileModule.name,
   ngeoRoutingModule.name,
   ngeoGooglestreetviewModule.name,
   ngeoStatemanagerWfsPermalink.module.name,

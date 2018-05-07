@@ -1,15 +1,17 @@
-@lidar-profile-height: 35rem;
+@import "~gmf/less/vars.less";
+
+@lidarprofile-height: 35rem;
 @profile-legend-width: 15rem;
-#gmf-lidar-profile-container {
+#gmf-lidarprofile-container {
   position: relative;
   overflow: hidden;
   padding: @app-margin;
   border-top: solid 1px black;
   background-color: white;
-  height: @lidar-profile-height;
+  height: @lidarprofile-height;
   display: flex;
 
-  .lidar-profile {
+  .lidarprofile {
     width: ~"calc(100% - @{profile-legend-width})";
     background-color: #f5f5f5;
   }
@@ -44,12 +46,12 @@
   }
 }
 
-.gmf-lidar-profile-automatic-width {
+.gmf-lidarprofile-automatic-width {
   color: gray;
 }
 
-.gmf-lidar-profile-chart-active main {
-  height: calc(~'100%' - @lidar-profile-height);
+.gmf-lidarprofile-chart-active main {
+  height: calc(~'100%' - @lidarprofile-height);
 }
 
 .gmf-tooltip-measure {
