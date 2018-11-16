@@ -677,12 +677,6 @@ exports.Controller_.prototype.getProfileDataSuccess_ = function(resp) {
         }
       }
     }
-    const new_profileData = []
-    for (const d of profileData) {
-      for (const v of empty_layers) {
-        delete d['values'][v];
-      }
-    }
 
     this.profileData = profileData;
   }
