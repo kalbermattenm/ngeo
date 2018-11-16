@@ -662,29 +662,29 @@ exports.Controller_.prototype.getProfileDataSuccess_ = function(resp) {
   const profileData = resp.data['profile'];
   if (profileData instanceof Array) {
     const nonempty_layers = [];
-    for (const d in profileData) {
-      for (const v of d['values']) {
-        if (!v in nonempty_layers && d['values'][d] !== null) {
+    for (const d of profileData) {
+      for (const v in d['values']) {
+        if (nonempty_layers.indexOf(v) < 0 && d['values'][v] !== null) {
           nonempty_layers.push(v);
         }
       }
     }
     const empty_layers = [];
-    if (profileData-length > 0) {
-      for (const v of profileData[0]['values']) {
-        if (!v in nonempty_layers) {
+    if (profileData.length > 0) {
+      for (const v in profileData[0]['values']) {
+        if ( nonempty_layers.indexOf(v) < 0) {
           empty_layers.push(v);
         }
       }
     }
     const new_profileData = []
-    for (const d in profileData) {
-      for (const v in empty_layers) {
+    for (const d of profileData) {
+      for (const v of empty_layers) {
         delete d['values'][v];
       }
     }
 
-    this.profileData = new_profileData;
+    this.profileData = profileData;
   }
 };
 
